@@ -21,5 +21,5 @@ Upload.story = {
 }
 
 export default {
-  title: "222222"
+  title: "Upload"
 }

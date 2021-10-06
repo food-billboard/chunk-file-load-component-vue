@@ -1,30 +1,351 @@
-<template>
-  <div>
-    <el-button>22222</el-button>
-  </div>
-</template>
-
 <script>
-  import { Button as ElButton } from 'element-ui'
+  import { Upload } from 'chunk-file-upload'
+  import classnames from 'classnames'
+  import { nanoid } from 'nanoid'
+  import { get, merge } from 'lodash'
+  import Drag from './components/drag'
+  import Container from './components/container'
+  import { PropsValidator, Emitter, propsValueFormat, LIFE_CYCLE_ENUM, getInstallMap, createPreview } from './utils'
+
+  const emitter = new Emitter();
+
+  function lifecycleFormat(lifecycle) {
+    return LIFE_CYCLE_ENUM.reduce(function (acc, cycle) {
+      const action = lifecycle[cycle];
+      acc[cycle] = function (params, response) {
+        emitter.emit(params.name, params, response, this);
+        return action?.(params);
+      };
+      return acc;
+    }, {});
+  }
+
+  const releaseEmitter = (name) => {
+    emitter.off(name)
+  }
+
+  const UploadInstance = new Upload({
+    lifecycle: lifecycleFormat({}),
+  });
+
   export default {
-    name: 'my-button',
+    name: 'uploac-component',
     components: {
-      ElButton
+      Container,
+      Drag
+    },
+    props: {
+      value: {
+        type: String | Array | Object,
+        required: false,
+        validator: PropsValidator.value 
+      },
+      defauleValue: {
+        type: String | Array | Object,
+        required: false,
+        validator: PropsValidator.defaultValue 
+      },
+      onChange: {
+        type: Function,
+        required: false,
+      },
+      onRemove: {
+        type: Function,
+        required: false,
+      },
+      onValidator: {
+        type: Function,
+        required: false,
+      },
+      onError: {
+        type: Function,
+        required: false,
+      },
+      containerStyle: Object,
+      containerClass: String | Object,
+      viewStyle: Object,
+      viewClassName: Object,
+      viewType: {
+        type: String,
+        required: false,
+        default: "card",
+        validator: PropsValidator.viewType 
+      },
+      request: {
+        type: Object,
+        default() {
+          return {}
+        },
+      },
+      lifecycle: Object,
+      iconRender: Function,
+      itemRender: Function,
+      previewFile: Function,
+      onPreviewFile: Function,
+      showUploadList: Boolean | Object,
+      containerRender: Function,
+      immediately: Boolean,
+      limit: Number,
+      actionUrl: String | Array,
+      method: Array,
+      headers: Object,
+      withCredentials: Boolean,
+      locale: Object,
+      accept: String,
+      minSize: Number,
+      maxSize: Number,
+      maxFiles: Number,
+      disabled: Boolean,
+      validator: Function,
+      multiple: Boolean
+    },
+    data() {
+      const stateFiles = propsValueFormat(this.defauleValue || this.value || [])
+      return {
+        stateFiles
+      }
+    },
+    provide() {
+      return {
+        instance: UploadInstance,
+        emitter,
+        locale: this.locale || {},
+        setValue: this.setFiles,
+        getValue: function() { return this.formatFiles }
+      }
     },
     methods: {
+      setFiles(value) {
+        if(!this.value) {
+          this.stateFiles = value
+        } 
+        this.onChange && this.onChange(value)
+      },
+      selectFiles() {
+        this.$refs["chunk-file-load-ref"].selectFiles()
+      },
+      onDrop(resolveFiles, rejectFiles) {
+        const { wrapperFiles, errorFiles } = this.addTask(resolveFiles);
+        if(this.onValidator) this.onValidator(
+          [
+            ...errorFiles.map((item) => {
+              return {
+                file: item,
+                errors: [
+                  {
+                    message: 'task add error',
+                    code: 'task add error',
+                  },
+                ],
+              };
+            }),
+            ...rejectFiles,
+          ],
+          wrapperFiles.map((item) => item.originFile),
+        );
+        this.setFiles([...this.files, ...wrapperFiles]);
+        console.log(this.formatFiles, this.files)
+      },
+      callbackWrapper(callback, error, value) {
+        if (!!error) {
+          let errorFiles;
+          let dealError = false;
+          const result = this.formatFiles.map((item) => {
+            const isStop = get(item.task, "tool.file.isStop")
+            if (item.name !== value || (isStop && isStop())) {
+              return item;
+            }
+            dealError = true;
+            errorFiles = merge({}, item, {
+              error,
+            });
+            return errorFiles;
+          })
+          this.setFiles(result)
+          dealError && this.onError && this.onError(error, errorFiles);
+        }
+        // release emitter 
+        releaseEmitter(value)
+        callback?.(error, value);
+      },
+      onInternalError(request) {
+        const { callback, ...nextRequest } = request;
+        return {
+          ...nextRequest,
+          callback: this.callbackWrapper.bind(this, callback),
+        };
+      },
+      taskGenerate(file) {
+        const actionRequest = getInstallMap('request');
+        if (this.actionUrl && !!actionRequest && !Object.keys(this.request).length) {
+          const { request, ...nextAction } = actionRequest({
+            url: this.actionUrl,
+            instance: UploadInstance,
+            withCredentials: !!this.withCredentials,
+            headers: this.headers,
+            method: this.method,
+          });
+          return {
+            request: this.onInternalError(request),
+            ...nextAction,
+            file: {
+              file,
+            },
+            lifecycle: this.lifecycle,
+          };
+        }
+        return {
+          request: this.onInternalError(this.request),
+          file: {
+            file,
+          },
+          lifecycle: this.lifecycle,
+        };
+      },
+      addTask(files) {
+        const realFiles = Array.isArray(files) ? files : [files];
+        const wrapperFiles = realFiles.reduce(
+          (acc, file) => {
+            const tasks = UploadInstance.add(this.taskGenerate(file));
+            if (Array.isArray(tasks) && tasks.length === 1) {
+              const [name] = tasks;
+              const task = UploadInstance.getTask(name);
+              const id = nanoid();
+              const wrapperTask = {
+                originFile: file,
+                name,
+                id,
+                get task() {
+                  return UploadInstance.getTask(name) || task || undefined;
+                },
+                local: {
+                  type: 'local',
+                  value: {
+                    preview: createPreview(file),
+                    fileId: id,
+                    fileSize: file.size,
+                    filename: file.name,
+                  },
+                },
+                getStatus() {
+                  return task.status;
+                },
+                getProgress() {
+                  return task.process
+                }
+              };
+              acc.wrapperFiles.push(wrapperTask);
+              if (this.immediately) UploadInstance.deal(name);
+            } else {
+              acc.errorFiles.push(file);
+            }
+            return acc;
+          },
+          {
+            wrapperFiles: [],
+            errorFiles: [],
+          },
+        );
+        return wrapperFiles;
+      }
+    },
+    computed: {
+      formatFiles() {
+        return propsValueFormat(this.files)
+      },
+      files() {
+        return this.value || this.stateFiles
+      },
+      inputProps() {
+        const that = this 
+        return {
+          attrs: {
+            id: "chunk-file-load-component-input",
+            type: "file",
+            multiple: !!this.multiple,
+            accept: this.accept,
+          },
+          on: {
+            change(e) {
+              that.$refs["chunk-file-load-drag"].closeDialog()
+              const { resolve, reject } = that.$refs["chunk-file-load-drag"].customValidator(e.target.files)
+              that.onDrop(resolve, reject)
+            },
+            focus() {
+              that.$refs["chunk-file-load-drag"].focus()
+            },
+            blur() {
+              that.$refs["chunk-file-load-drag"].blur()
+            }
+          },
+        }
+      },
+      rootProps() {
+        return {
+          on: {
+            click: this.selectFiles,
+          }
+        }
+      }
+    },
+    watch: {
       
+    },
+    render() {
+
+      return (
+        <div
+          class={classnames('chunk-upload-container', {
+            ['chunk-upload-container-list']:
+              this.viewType === 'list' && !this.containerRender,
+            ['chunk-upload-container-card']:
+              this.viewType === 'card' && !this.containerRender,
+          })}
+        >
+          <drag
+            accept={this.accept}
+            disabled={this.disabled}
+            drop={this.onDrop}
+            validator={this.validator}
+            multiple={this.multiple}
+            minSize={this.minSize}
+            maxSize={this.maxSize}
+            maxFiles={this.maxFiles}
+            ref={"chunk-file-load-drag"}
+          >
+            <container
+              ref={"chunk-file-load-ref"}
+              viewType={this.viewType}
+              inputProps={this.inputProps}
+              rootProps={this.rootProps}
+              style={this.containerStyle}
+              class={this.containerClass}
+              containerRender={this.containerRender}
+              currentFiles={this.stateFiles.length || 0}
+              limit={this.limit}
+            >
+            </container>
+          </drag>
+        </div>
+      )
+
     }
   }
 </script>
 
 <style>
-  .button-styles {
-    border: 1px solid #eee;
-    border-radius: 3px;
-    background-color: #FFFFFF;
-    cursor: pointer;
-    font-size: 15pt;
-    padding: 3px 10px;
-    margin: 10px;
-  }
+.chunk-upload-container {
+  font-family: sans-serif;
+}
+.chunk-upload-container-list {
+  flex-direction: column;
+  display: flex;
+}
+.chunk-upload-container-card {
+  flex-wrap: wrap;
+  display: flex;
+}
+#chunk-file-load-component-input {
+  display: none;
+}
 </style>

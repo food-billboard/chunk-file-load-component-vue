@@ -4,7 +4,7 @@ module.exports = {
     ["@babel/preset-env"],
   ],
   plugins: [
-    // ["@babel/plugin-proposal-private-property-in-object", { "loose": true }],
+    ["@babel/plugin-proposal-private-property-in-object", { "loose": true }],
     [
       'babel-plugin-import',
       {
