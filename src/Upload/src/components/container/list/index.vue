@@ -1,5 +1,6 @@
 <script>
 import classnames from 'classnames'
+
 export default {
   props: {
     containerClass: String,
@@ -15,19 +16,6 @@ export default {
     isDragReject: "isDragReject"
   },
   computed: {
-    container() {
-      return (
-        <fragment>
-          <span class={'chunk-upload-container-icon'}>
-            {this.locale.containerIcon || (
-              // <FileTwoTone className={'chunk-upload-container-icon-main'} />
-              "默认图标"
-            )}
-          </span>
-          <span>{this.locale.container || '点击或拖拽文件到此处'}</span>
-        </fragment>
-      )
-    },
     dropzoneClassName() {
       return classnames(
         'chunk-upload-dropzone-list',
@@ -44,7 +32,13 @@ export default {
     return (
       <div {...this.rootProps} class={this.dropzoneClassName} style={this.containerStyle}>
         {this.$slots.default}
-        {this.container}
+        <span class={'chunk-upload-container-icon'}>
+          {this.locale.containerIcon || (
+            // <FileTwoTone className={'chunk-upload-container-icon-main'} />
+            "默认图标"
+          )}
+        </span>
+        <span>{this.locale.container || '点击或拖拽文件到此处'}</span>
       </div>
     )
   }

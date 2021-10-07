@@ -68,7 +68,7 @@
       viewType: {
         type: String,
         required: false,
-        default: "card",
+        default: "list",
         validator: PropsValidator.viewType 
       },
       request: {

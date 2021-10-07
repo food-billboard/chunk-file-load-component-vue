@@ -1,5 +1,5 @@
 <script>
-import { pick } from 'lodash'
+import { pick, merge } from 'lodash'
 import Card from './card'
 import List from './list'
 

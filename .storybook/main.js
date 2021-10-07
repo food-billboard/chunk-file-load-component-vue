@@ -49,8 +49,7 @@ module.exports = {
   ],
   addons: [
     "@storybook/addons",
-    "storybook-readme/register",
-    "@storybook/addon-notes/register",
+    "@storybook/addon-notes/register-panel",
     {
       name: "@storybook/addon-storysource",
       options: {
@@ -66,6 +65,7 @@ module.exports = {
           }
         }
       }
-    }
+    },
+    // "storybook-readme/register",
   ]
 };
