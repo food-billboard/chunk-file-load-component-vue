@@ -49,9 +49,27 @@ export const propsValueFormat = (value) => {
   });
 };
 
-
 export const createPreview = (file, task) => {
   const type = file.type;
   if (type && type.startsWith('image/')) return URL.createObjectURL(file);
   return '';
 };
+
+export const isUploaded = (task) => {
+  return (
+    task.local?.type === 'url' ||
+    !task.task ||
+    task.task.tool.file.isTaskComplete(task.task)
+  );
+};
+
+export function withTry(func) {
+  return async function(...args) {
+    try {
+      const data = await func(...args)
+      return [null, data]
+    }catch(err) {
+      return [err, null]
+    }
+  }
+}

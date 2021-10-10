@@ -5,6 +5,7 @@
   import { get, merge } from 'lodash'
   import Drag from './components/drag'
   import Container from './components/container'
+  import ViewList from './components/view'
   import { PropsValidator, Emitter, propsValueFormat, LIFE_CYCLE_ENUM, getInstallMap, createPreview } from './utils'
 
   const emitter = new Emitter();
@@ -32,7 +33,8 @@
     name: 'uploac-component',
     components: {
       Container,
-      Drag
+      Drag,
+      ViewList
     },
     props: {
       value: {
@@ -64,7 +66,7 @@
       containerStyle: Object,
       containerClass: String | Object,
       viewStyle: Object,
-      viewClassName: Object,
+      viewClassName: String,
       viewType: {
         type: String,
         required: false,
@@ -247,6 +249,14 @@
           },
         );
         return wrapperFiles;
+      },
+      releasePreviewCache(files) {
+        const realFiles = Array.isArray(files) ? files : [files];
+        realFiles.forEach((file) => {
+          try {
+            URL.revokeObjectURL(file.local?.value?.preview)
+          } catch (err) {}
+        });
       }
     },
     computed: {
@@ -286,6 +296,22 @@
             click: this.selectFiles,
           }
         }
+      },
+      fileDomList() {
+        return (
+          <view-list
+            style={this.viewStyle}
+            className={this.viewClassName}
+            viewType={this.viewType}
+            showUploadList={this.showUploadList}
+            onRemove={this.onRemove}
+            iconRender={this.iconRender}
+            itemRender={this.itemRender}
+            previewFile={this.previewFile}
+            onPreviewFile={this.onPreviewFile}
+            onCancel={this.releasePreviewCache}
+          ></view-list>
+        );
       }
     },
     watch: {
@@ -326,6 +352,9 @@
             >
             </container>
           </drag>
+          {
+            !!this.showUploadList && this.fileDomList
+          }
         </div>
       )
 
