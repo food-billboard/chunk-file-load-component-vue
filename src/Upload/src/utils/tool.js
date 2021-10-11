@@ -73,3 +73,7 @@ export function withTry(func) {
     }
   }
 }
+
+export const className = (prefix, ...args) => {
+  return `${prefix}-${args.join('-')}`;
+};
