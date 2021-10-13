@@ -2,11 +2,14 @@
   import Icon from '../icon'
   import ActionModal from './action.vue'
   import Progress from '../progress'
+  import ProgressWrapper from '../progress/wrapper.vue'
+
  export default {
    components: {
      ElIcon: Icon,
      ActionModal,
-     CusProgress: Progress
+     CusProgress: Progress,
+     ProgressWrapper
    },
     props: {
         value: Object,
@@ -47,44 +50,55 @@
         this.isComplete = !!task?.tool.file.isTaskComplete(task);
       }
     },
+    computed: {
+      progressInfo() {
+        return this.$refs["progress-wrapper-ref"].progressInfo()
+      }
+    },
     render() {
       const { local, id, task } = this.value 
+      const [ complete, total, current ] = this.progressInfo
+
       const node = (
-        <div class={'chunk-upload-card-item'}>
-          <el-icon 
-            iconRender={iconRender} 
-            file={this.value} 
-            viewType={this.viewType} 
-          ></el-icon>
-          <cus-progress
-            file={this.value}
-            onChange={this.onProgressChange}
-            className="chunk-upload-card-item-progress"
-            style={{
-              flexDirection: 'column',
-              width: '100%',
-              visibility: isComplete ? 'hidden' : 'visible',
-            }}
-            showInfo={false}
-            strokeWidth={5}
-            progress={this.progressInfo}
-          ></cus-progress>
-          <div className="chunk-upload-card-item-info">
-            <span>{local?.value?.filename || local?.value?.fileId || id}</span>
+        <progress-wrapper
+          ref="progress-wrapper-ref"
+        >
+          <div class={'chunk-upload-card-item'}>
+            <el-icon 
+              iconRender={iconRender} 
+              file={this.value} 
+              viewType={this.viewType} 
+            ></el-icon>
+            <cus-progress
+              file={this.value}
+              onChange={this.onProgressChange}
+              className="chunk-upload-card-item-progress"
+              style={{
+                flexDirection: 'column',
+                width: '100%',
+                visibility: isComplete ? 'hidden' : 'visible',
+              }}
+              showInfo={false}
+              strokeWidth={5}
+              progress={this.progressInfo}
+            ></cus-progress>
+            <div className="chunk-upload-card-item-info">
+              <span>{local?.value?.filename || local?.value?.fileId || id}</span>
+            </div>
+            <action-modal
+              onCancel={this.onCancel}
+              onStop={this.handleStop}
+              onUpload={this.handleUpload}
+              isDealing={this.isDealing}
+              isComplete={this.isComplete}
+              value={this.value}
+              previewFile={this.previewFile}
+              showUploadList={this.showUploadList}
+              viewType={this.viewType}
+              onPreview={this.onPreview}
+            />
           </div>
-          <action-modal
-            onCancel={this.onCancel}
-            onStop={this.handleStop}
-            onUpload={this.handleUpload}
-            isDealing={this.isDealing}
-            isComplete={this.isComplete}
-            value={this.value}
-            previewFile={this.previewFile}
-            showUploadList={this.showUploadList}
-            viewType={this.viewType}
-            onPreview={this.onPreview}
-          />
-        </div>
+        </progress-wrapper>
       )
 
       if (this.itemRender) {

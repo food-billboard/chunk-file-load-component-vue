@@ -84,7 +84,10 @@
       itemRender: Function,
       previewFile: Function,
       onPreviewFile: Function,
-      showUploadList: Boolean | Object,
+      showUploadList: {
+        type: [Boolean, Object],
+        default: true 
+      },
       containerRender: Function,
       immediately: Boolean,
       limit: Number,

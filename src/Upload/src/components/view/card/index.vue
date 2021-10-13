@@ -1,5 +1,6 @@
 <script>
   import ViewItem from './item.vue'
+
   export default {
     props: {
       onCancel: Function,
@@ -15,7 +16,7 @@
       style: Object
     },
     components: {
-      ViewItem
+      ViewItem,
     },
     inject: [
       "instance",

@@ -71,18 +71,20 @@ export default {
         uploadIconNode,
         stopIconNode,
       } = actionIconPerformance(this.showUploadList, this.value);
-      return (
-        <>
-          {uploadShow && this.uploadButtonAction(uploadIconNode, stopIconNode)}
-          {deleteShow && (
+      return [
+        (uploadShow && this.uploadButtonAction(uploadIconNode, stopIconNode)),
+        (
+          deleteShow && (
             <el-button
               loading={this.cancelLoading}
               onClick={this.handleCancel}
               icon={deleteIconNode || "el-icon-delete"}
               type="link"
             />
-          )}
-          {previewShow && (
+          )
+        ),
+        (
+          previewShow && (
             <Button
               onClick={this.handlePreview}
               icon={previewIconNode || "el-icon-view"}
@@ -90,9 +92,9 @@ export default {
               type="link"
               disabled={!this.value.local?.value?.preview && !this.previewFile}
             />
-          )}
-        </>
-      );
+          )
+        )
+      ]
     }
   },
   render() {
