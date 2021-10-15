@@ -65,7 +65,7 @@ export default {
       >
         <img  
           className="chunk-upload-preview-image"
-          src={preview || IMAGE_FALLBACK}
+          src={this.preview || IMAGE_FALLBACK}
         />
       </el-dialog>
     )

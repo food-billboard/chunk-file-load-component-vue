@@ -1,5 +1,6 @@
 <script>
-  import { noop } from 'lodash'
+  import { noop, merge } from 'lodash'
+  import { Fragment } from 'vue-fragment'
   import PreviewModal from '../preview'
   import Card from './card'
   import List from './list'
@@ -7,7 +8,10 @@
   export default {
     props: {
       className: String,
-      style: Object,
+      style: {
+        type: Object,
+        default: {}
+      },
       onCancel: Function,
       viewType: String,
       showUploadList: Object | Boolean,
@@ -25,7 +29,8 @@
     components: {
       PreviewModal,
       Card,
-      List
+      List,
+      Fragment
     },
     methods: {
       onStop(task) {
@@ -87,7 +92,7 @@
         }
         this.onCancel && this.onCancel(task);
         setTimeout(() => {
-          const prevValue = this.getValue()
+          const prevValue = this.getValue
           const newValue = this.unCancelValue(task, prevValue)
           this.setValue(newValue)
         }, 10);
@@ -103,7 +108,7 @@
           } else if (!error) {
             result = instance.deal(fileTask.symbol);
           } else if (task.task) {
-            const prevValue = this.getValue()
+            const prevValue = this.getValue
             const newValue = prevValue.map((item) => {
               if (item.id !== task.id) return item;
               result = this.instance.uploading(task.task);
@@ -133,25 +138,9 @@
         return this.$refs["previewModalRef"].open({
           value,
         });
-      }
-    },
-    computed: {
+      },
       container() {
-        const {
-          viewType,
-          onRemove,
-          previewFile,
-          onPreviewFile,
-          ...nextProps
-        } = this.$props
-        const props = {
-          ...nextProps,
-          viewType,
-          onCancel: this.onInternalCancel,
-          onStop: this.onStop,
-          onUpload: this.onUpload,
-          onPreview: this.onPreview,
-        };
+
         switch (viewType) {
           case 'card':
             return <card {...props} />;
@@ -162,16 +151,38 @@
         }
       }
     },
+    computed: {
+  
+    },
     render() {
-      return [
-        this.container,
-        <preview-modal
-          ref={"previewModalRef"}
-          previewFile={this.previewFile}
-          viewType={this.viewType}
-          onPreviewFile={this.onPreviewFile}
-        ></preview-modal>
-      ]
+      const {
+        viewType,
+        onRemove,
+        previewFile,
+        onPreviewFile,
+        style,
+        ...nextProps
+      } = this.$props
+      const props = {
+        ...nextProps,
+        viewType,
+        onCancel: this.onInternalCancel,
+        onStop: this.onStop,
+        onUpload: this.onUpload,
+        onPreview: this.onPreview,
+      };
+      return (
+        <fragment>
+          <list {...props} style={merge({}, style, { display: viewType === "list" ? style.display || "block" : "none" })} />
+          <card {...props} style={merge({}, style, { display: viewType === "card" ? style.display || "block" : "none"})} />
+          <preview-modal
+            ref={"previewModalRef"}
+            previewFile={this.previewFile}
+            viewType={this.viewType}
+            onPreviewFile={this.onPreviewFile}
+          ></preview-modal>
+        </fragment>
+      )
     }
 
   }

@@ -25,7 +25,7 @@ export default {
     getValue() {
       if(!this.isFirstInject || !this.instance) return 
       this.isFirstInject = true 
-      const files = this.getValue()
+      const files = this.getValue
       const target = files.find(item => item.name === this.name)
       if(!target) return 
       const status = target.getStatus()

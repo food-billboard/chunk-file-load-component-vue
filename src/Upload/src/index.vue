@@ -116,7 +116,7 @@
         emitter,
         locale: this.locale || {},
         setValue: this.setFiles,
-        getValue: function() { return this.formatFiles }
+        getValue: this.formatFiles
       }
     },
     methods: {
@@ -149,7 +149,7 @@
           wrapperFiles.map((item) => item.originFile),
         );
         this.setFiles([...this.files, ...wrapperFiles]);
-        console.log(this.formatFiles, this.files)
+        
       },
       callbackWrapper(callback, error, value) {
         if (!!error) {

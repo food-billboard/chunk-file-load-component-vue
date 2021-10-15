@@ -117,7 +117,7 @@
       },
       customValidator(files) {
         let realFiles = [].slice.call(files)
-        let currentFilesLength = this.getValue()
+        let currentFilesLength = this.getValue
         currentFilesLength = currentFilesLength ? currentFilesLength.length || 0 : 0
         const maxFiles = this.maxFiles ?? (this.multiple ? undefined : 1)
 

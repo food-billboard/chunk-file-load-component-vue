@@ -35,11 +35,13 @@
   "typings": "lib/index.d.ts",
   "types": "lib/index.d.ts",
   "dependencies": {
+    "chunk-file-upload": "^1.0.9",
     "classnames": "^2.3.1",
     "core-js": "^3.6.5",
     "element-ui": "^2.15.6",
     "lodash": "^4.17.21",
-    "nanoid": "^3.1.28"
+    "nanoid": "^3.1.28",
+    "vue-fragment": "^1.5.2"
   },
   "peerDependencies": {},
   "devDependencies": {
