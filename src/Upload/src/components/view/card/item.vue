@@ -2,26 +2,27 @@
   import Icon from '../icon'
   import ActionModal from './action.vue'
   import Progress from '../progress'
-  import ProgressWrapper from '../progress/wrapper.vue'
+  import ProgressWrapper from '../progress/wrapper'
 
  export default {
    components: {
      ElIcon: Icon,
      ActionModal,
      CusProgress: Progress,
-     ProgressWrapper
    },
     props: {
-        value: Object,
-        onCancel: Function,
-        onUpload: Function,
-        onStop: Function,
-        onPreview: Function,
-        itemRender: Function,
-        showUploadList: Object | Boolean,
-        iconRender: Function,
-        viewType: String,
-        previewFile: Object
+      value: Object,
+      onCancel: Function,
+      onUpload: Function,
+      onStop: Function,
+      onPreview: Function,
+      itemRender: Function | Boolean,
+      showUploadList: Object | Boolean,
+      iconRender: Function,
+      viewType: String,
+      previewFile: Object,
+      viewStyle: Object,
+      getValue: Array 
     },
     watch: {
       value() {
@@ -32,10 +33,12 @@
       return {
         isDealing: false,
         isComplete: false,
+        progress: undefined
       }
     },
     inject: [
-      "instance"
+      "instance",
+      "emitter"
     ],
     methods: {
       handleStop() {
@@ -52,64 +55,72 @@
     },
     computed: {
       progressInfo() {
-        return this.$refs["progress-wrapper-ref"].progressInfo()
+        if(!this.progress) return []
+        return this.progress.progressInfo()
       }
+    },
+    created() {
+      const { task } = this.value 
+      this.progress = new ProgressWrapper({
+        name: task.symbol,
+        getValue: this.getValue,
+        emitter: this.emitter,
+        instance: this.instance
+      })
     },
     render() {
       const { local, id, task } = this.value 
       const [ complete, total, current ] = this.progressInfo
 
       const node = (
-        <progress-wrapper
-          ref="progress-wrapper-ref"
-        >
-          <div class={'chunk-upload-card-item'}>
-            <el-icon 
-              iconRender={iconRender} 
-              file={this.value} 
-              viewType={this.viewType} 
-            ></el-icon>
-            <cus-progress
-              file={this.value}
-              onChange={this.onProgressChange}
-              className="chunk-upload-card-item-progress"
-              style={{
-                flexDirection: 'column',
-                width: '100%',
-                visibility: isComplete ? 'hidden' : 'visible',
-              }}
-              showInfo={false}
-              strokeWidth={5}
-              progress={this.progressInfo}
-            ></cus-progress>
-            <div className="chunk-upload-card-item-info">
-              <span>{local?.value?.filename || local?.value?.fileId || id}</span>
-            </div>
-            <action-modal
-              onCancel={this.onCancel}
-              onStop={this.handleStop}
-              onUpload={this.handleUpload}
-              isDealing={this.isDealing}
-              isComplete={this.isComplete}
-              value={this.value}
-              previewFile={this.previewFile}
-              showUploadList={this.showUploadList}
-              viewType={this.viewType}
-              onPreview={this.onPreview}
-            />
+        <div class={'chunk-upload-card-item'} style={this.viewStyle}>
+          <el-icon 
+            iconRender={this.iconRender} 
+            file={this.value} 
+            viewType={this.viewType} 
+          ></el-icon>
+          <cus-progress
+            file={this.value}
+            onChange={this.onProgressChange}
+            className="chunk-upload-card-item-progress"
+            style={{
+              flexDirection: 'column',
+              width: '100%',
+              visibility: this.isComplete ? 'hidden' : 'visible',
+            }}
+            showInfo={false}
+            strokeWidth={5}
+            progress={this.progressInfo}
+          ></cus-progress>
+          <div className="chunk-upload-card-item-info">
+            <span>{local?.value?.filename || local?.value?.fileId || id}</span>
           </div>
-        </progress-wrapper>
+          <action-modal
+            onCancel={this.onCancel}
+            onStop={this.handleStop}
+            onUpload={this.handleUpload}
+            isDealing={this.isDealing}
+            isComplete={this.isComplete}
+            value={this.value}
+            previewFile={this.previewFile}
+            showUploadList={this.showUploadList}
+            viewType={this.viewType}
+            onPreview={this.onPreview}
+          />
+        </div>
       )
+      
 
-      if (this.itemRender) {
+      if(this.itemRender) {
         return this.itemRender(node, {
           complete,
           current,
           total,
           status: task?.status,
-        });
+        })
       }
-      return node;
+
+      return node 
 
     }
 

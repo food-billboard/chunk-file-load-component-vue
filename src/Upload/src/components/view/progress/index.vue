@@ -17,7 +17,6 @@
       },
       progress: Array,
       className: String,
-      style: Object,
       strokeWidth: Number
     },
     inject: [
@@ -55,6 +54,8 @@
     render() {
       const { error } = this.file 
       const [, , , , origin] = this.progress
+      const { style } = this.$attrs
+
       return (
         <div
           className={classnames(
@@ -64,7 +65,7 @@
             },
             this.className,
           )}
-          style={this.style}
+          style={style}
         >
           <el-progress
             percentage={this.realValue}

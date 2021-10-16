@@ -1,17 +1,12 @@
 <script>
-  import { noop, merge } from 'lodash'
-  import { Fragment } from 'vue-fragment'
-  import PreviewModal from '../preview'
+  import { noop } from 'lodash'
   import Card from './card'
   import List from './list'
   import { isUploaded, withTry } from '../../utils'
   export default {
     props: {
       className: String,
-      style: {
-        type: Object,
-        default: {}
-      },
+      viewStyle: Object,
       onCancel: Function,
       viewType: String,
       showUploadList: Object | Boolean,
@@ -19,18 +14,17 @@
       itemRender: Function,
       onRemove: Function,
       previewFile: Function,
-      onPreviewFile: Function
+      onPreviewFile: Function,
+      onPreview: Function,
+      getValue: Array 
     },
     inject: [
       "instance",
-      "getValue",
       "setValue"
     ],
     components: {
-      PreviewModal,
       Card,
-      List,
-      Fragment
+      List
     },
     methods: {
       onStop(task) {
@@ -134,25 +128,6 @@
           }
         }
       },
-      onPreview(value) {
-        return this.$refs["previewModalRef"].open({
-          value,
-        });
-      },
-      container() {
-
-        switch (viewType) {
-          case 'card':
-            return <card {...props} />;
-          case 'list':
-            return <list {...props} />;
-          default:
-            return <span></span>;
-        }
-      }
-    },
-    computed: {
-  
     },
     render() {
       const {
@@ -160,29 +135,22 @@
         onRemove,
         previewFile,
         onPreviewFile,
-        style,
         ...nextProps
       } = this.$props
       const props = {
-        ...nextProps,
-        viewType,
-        onCancel: this.onInternalCancel,
-        onStop: this.onStop,
-        onUpload: this.onUpload,
-        onPreview: this.onPreview,
+        props: {
+          ...nextProps,
+          viewType,
+          "on-cancel": this.onInternalCancel,
+          "on-stop": this.onStop,
+          "on-upload": this.onUpload,
+          "on-preview": this.onPreview,
+        }
       };
-      return (
-        <fragment>
-          <list {...props} style={merge({}, style, { display: viewType === "list" ? style.display || "block" : "none" })} />
-          <card {...props} style={merge({}, style, { display: viewType === "card" ? style.display || "block" : "none"})} />
-          <preview-modal
-            ref={"previewModalRef"}
-            previewFile={this.previewFile}
-            viewType={this.viewType}
-            onPreviewFile={this.onPreviewFile}
-          ></preview-modal>
-        </fragment>
-      )
+
+      if(viewType == "list") return <list {...props} />
+      if(viewType == "card") return <card {...props} />
+      
     }
 
   }

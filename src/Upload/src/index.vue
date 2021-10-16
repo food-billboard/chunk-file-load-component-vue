@@ -1,40 +1,31 @@
 <script>
-  import { Upload } from 'chunk-file-upload'
   import classnames from 'classnames'
   import { nanoid } from 'nanoid'
   import { get, merge } from 'lodash'
   import Drag from './components/drag'
   import Container from './components/container'
   import ViewList from './components/view'
-  import { PropsValidator, Emitter, propsValueFormat, LIFE_CYCLE_ENUM, getInstallMap, createPreview } from './utils'
-
-  const emitter = new Emitter();
-
-  function lifecycleFormat(lifecycle) {
-    return LIFE_CYCLE_ENUM.reduce(function (acc, cycle) {
-      const action = lifecycle[cycle];
-      acc[cycle] = function (params, response) {
-        emitter.emit(params.name, params, response, this);
-        return action?.(params);
-      };
-      return acc;
-    }, {});
-  }
+  import PreviewModal from './components/preview'
+  import { 
+    PropsValidator, 
+    emitter, 
+    propsValueFormat, 
+    UploadInstance, 
+    getInstallMap, 
+    createPreview 
+  } from './utils'
 
   const releaseEmitter = (name) => {
     emitter.off(name)
   }
-
-  const UploadInstance = new Upload({
-    lifecycle: lifecycleFormat({}),
-  });
 
   export default {
     name: 'uploac-component',
     components: {
       Container,
       Drag,
-      ViewList
+      ViewList,
+      PreviewModal
     },
     props: {
       value: {
@@ -47,25 +38,34 @@
         required: false,
         validator: PropsValidator.defaultValue 
       },
-      onChange: {
+      "on-change": {
         type: Function,
         required: false,
       },
-      onRemove: {
+      "on-remove": {
+        type: Function,
+        default() {
+          return function() {
+            return true 
+          }
+        }
+      },
+      "on-validator": {
         type: Function,
         required: false,
       },
-      onValidator: {
-        type: Function,
-        required: false,
-      },
-      onError: {
+      "on-error": {
         type: Function,
         required: false,
       },
       containerStyle: Object,
       containerClass: String | Object,
-      viewStyle: Object,
+      viewStyle: {
+        type: Object,
+        default() {
+          return {}
+        }
+      },
       viewClassName: String,
       viewType: {
         type: String,
@@ -82,8 +82,22 @@
       lifecycle: Object,
       iconRender: Function,
       itemRender: Function,
-      previewFile: Function,
-      onPreviewFile: Function,
+      previewFile: {
+        type: Function,
+        default() {
+          return function() {
+            return false 
+          }
+        }
+      },
+      "on-preview-file": {
+        type: Function,
+        default() {
+          return function() {
+            return true  
+          }
+        }
+      },
       showUploadList: {
         type: [Boolean, Object],
         default: true 
@@ -95,7 +109,12 @@
       method: Array,
       headers: Object,
       withCredentials: Boolean,
-      locale: Object,
+      locale: {
+        type: Object,
+        default() {
+          return {}
+        }
+      },
       accept: String,
       minSize: Number,
       maxSize: Number,
@@ -107,16 +126,15 @@
     data() {
       const stateFiles = propsValueFormat(this.defauleValue || this.value || [])
       return {
-        stateFiles
+        stateFiles,
       }
     },
     provide() {
       return {
         instance: UploadInstance,
         emitter,
-        locale: this.locale || {},
         setValue: this.setFiles,
-        getValue: this.formatFiles
+        locale: this.locale 
       }
     },
     methods: {
@@ -124,14 +142,14 @@
         if(!this.value) {
           this.stateFiles = value
         } 
-        this.onChange && this.onChange(value)
+        this["on-change"]?.(value)
       },
       selectFiles() {
         this.$refs["chunk-file-load-ref"].selectFiles()
       },
       onDrop(resolveFiles, rejectFiles) {
         const { wrapperFiles, errorFiles } = this.addTask(resolveFiles);
-        if(this.onValidator) this.onValidator(
+        this["on-validator"]?.(
           [
             ...errorFiles.map((item) => {
               return {
@@ -149,7 +167,6 @@
           wrapperFiles.map((item) => item.originFile),
         );
         this.setFiles([...this.files, ...wrapperFiles]);
-        
       },
       callbackWrapper(callback, error, value) {
         if (!!error) {
@@ -167,7 +184,7 @@
             return errorFiles;
           })
           this.setFiles(result)
-          dealError && this.onError && this.onError(error, errorFiles);
+          dealError && this["on-error"]?.(error, errorFiles);
         }
         // release emitter 
         releaseEmitter(value)
@@ -260,6 +277,11 @@
             URL.revokeObjectURL(file.local?.value?.preview)
           } catch (err) {}
         });
+      },
+      onPreview(value) {
+        return this.$refs["previewModalRef"].open({
+          value,
+        });
       }
     },
     computed: {
@@ -301,18 +323,25 @@
         }
       },
       fileDomList() {
+        const props = {
+          props: {
+            viewStyle: this.viewStyle,
+            className: this.viewClassName,
+            viewType: this.viewType,
+            showUploadList: this.showUploadList,
+            "on-remove": this.onRemove,
+            iconRender: this.iconRender,
+            itemRender: this.itemRender,
+            previewFile: this.previewFile,
+            "on-preview-file": this.onPreviewFile,
+            "on-cancel": this.releasePreviewCache,
+            getValue: this.formatFiles,
+            onPreview: this.onPreview
+          }
+        }
         return (
           <view-list
-            style={this.viewStyle}
-            className={this.viewClassName}
-            viewType={this.viewType}
-            showUploadList={this.showUploadList}
-            onRemove={this.onRemove}
-            iconRender={this.iconRender}
-            itemRender={this.itemRender}
-            previewFile={this.previewFile}
-            onPreviewFile={this.onPreviewFile}
-            onCancel={this.releasePreviewCache}
+            {...props}
           ></view-list>
         );
       }
@@ -321,7 +350,6 @@
       
     },
     render() {
-
       return (
         <div
           class={classnames('chunk-upload-container', {
@@ -347,8 +375,8 @@
               viewType={this.viewType}
               inputProps={this.inputProps}
               rootProps={this.rootProps}
-              style={this.containerStyle}
-              class={this.containerClass}
+              containerStyle={this.containerStyle}
+              containerClass={this.containerClass}
               containerRender={this.containerRender}
               currentFiles={this.stateFiles.length || 0}
               limit={this.limit}
@@ -358,6 +386,12 @@
           {
             !!this.showUploadList && this.fileDomList
           }
+          <preview-modal
+            ref={"previewModalRef"}
+            previewFile={this.previewFile}
+            viewType={this.viewType}
+            onPreviewFile={this.onPreviewFile}
+          ></preview-modal>
         </div>
       )
 

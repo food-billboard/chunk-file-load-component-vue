@@ -1,5 +1,5 @@
 <script>
-    import { Fragment } from 'vue-fragment'
+  import { itemRender } from '../../../utils'
   import ViewItem from './item.vue'
 
   export default {
@@ -9,47 +9,42 @@
       onStop: Function,
       onPreview: Function,
       viewType: String,
+      viewStyle: Object,
       showUploadList: Boolean | Object,
       iconRender: Function,
-      itemRender: Function,
       previewFile: Function,
       className: String,
-      style: Object
+      getValue: Array,
     },
     components: {
       ViewItem,
-      Fragment
     },
     inject: [
       "instance",
       "setValue",
-      "getValue"
     ],
     render() {
       const value = this.getValue
-      return (
-        <fragment>
-          {
-            value.map((item) => {
-              const result = this.itemRender(this.$props, item, value);
-              return (
-                <view-item
-                  value={item}
-                  key={item.id}
-                  showUploadList={this.showUploadList}
-                  onCancel={this.onCancel}
-                  onUpload={this.onUpload}
-                  onStop={this.onStop}
-                  iconRender={this.iconRender}
-                  viewType={this.viewType}
-                  itemRender={result}
-                  onPreview={this.onPreview}
-                ></view-item>
-              );
-            })
-          }
-        </fragment>
-      )
+      return value.map((item) => {
+        const result = itemRender(this.$props, item, value);
+        return (
+          <view-item
+            value={item}
+            key={item.id}
+            showUploadList={this.showUploadList}
+            onCancel={this.onCancel}
+            onUpload={this.onUpload}
+            onStop={this.onStop}
+            iconRender={this.iconRender}
+            viewType={this.viewType}
+            viewStyle={this.viewStyle}
+            itemRender={result}
+            onPreview={this.onPreview}
+            getValue={this.getValue}
+          ></view-item>
+        );
+      })
+    
     }
 
   }

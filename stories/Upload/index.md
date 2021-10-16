@@ -104,27 +104,31 @@ const completeFn = async (data) => {
 1. 此需要单独安装模块 `npm install chunk-upload-request`
 2. 使用
 
-```tsx | pure
+```jsx
 import React from 'react';
 import request from 'chunk-upload-request';
 import { Upload } from 'chunk-file-load-component';
 
 Upload.install('request', request());
 
-const App = () => {
-  return (
-    <Upload
-      immediately={false}
-      actionUrl={['/api/check', '/api/load', '/api/complete']}
-      lifecycle={{
-        afterComplete() {
-          console.log('upload complete');
-        },
-      }}
-    />
-  );
-};
-export default App;
+export default {
+  components: {
+    Upload
+  },
+  render() {
+    return (
+      <upload
+        immediately={false}
+        actionUrl={['/api/check', '/api/load', '/api/complete']}
+        lifecycle={{
+          afterComplete() {
+            console.log('upload complete');
+          },
+        }}
+      />
+    )
+  }
+}
 ```
 
 - 注册`request`插件后，组件则不需要传递`request`参数，如果传递，则使用`props`的`request`

@@ -1,6 +1,5 @@
 <script>
 import classnames from 'classnames'
-import { merge } from 'lodash'
 export default {
   props: {
     containerClass: String,
