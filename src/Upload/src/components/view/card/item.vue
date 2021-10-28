@@ -82,17 +82,15 @@
           <cus-progress
             file={this.value}
             onChange={this.onProgressChange}
-            className="chunk-upload-card-item-progress"
-            style={{
-              flexDirection: 'column',
-              width: '100%',
-              visibility: this.isComplete ? 'hidden' : 'visible',
-            }}
+            class="chunk-upload-card-item-progress"
             showInfo={false}
             strokeWidth={5}
             progress={this.progressInfo}
+            style={{
+              visibility: this.isComplete ? 'hidden' : 'visible'
+            }}
           ></cus-progress>
-          <div className="chunk-upload-card-item-info">
+          <div class="chunk-upload-card-item-info">
             <span>{local?.value?.filename || local?.value?.fileId || id}</span>
           </div>
           <action-modal
@@ -128,21 +126,22 @@
 </script>
 <style>
 .chunk-upload-card-item {
-    width: 104px;
-    height: 104px;
-    padding: 2px;
-    cursor: pointer;
-    border-color: #eeeeee;
-    border-style: solid;
-    background-color: #fafafa;
-    border-width: 1px;
-    border-radius: 2px;
-    display: flex;
-    align-items: center;
-    margin: 8px;
-    flex-direction: column;
-    justify-content: center;
-    position: relative;
+  width: 104px;
+  height: 104px;
+  padding: 2px;
+  cursor: pointer;
+  border-color: #eeeeee;
+  border-style: solid;
+  background-color: #fafafa;
+  border-width: 1px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  margin: 8px;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
 }
 .chunk-upload-card-item:hover .chunk-upload-action-modal {
   visibility: visible;
@@ -150,6 +149,12 @@
 }
 .chunk-upload-card-item-progress {
   position: relative;
+  flex-direction: column;
+  width: 100%;
+  display: flex;
+}
+.chunk-upload-card-item-progress .el-progress {
+  width: 100%;
 }
 .chunk-upload-list-progress-status {
   width: 100%;

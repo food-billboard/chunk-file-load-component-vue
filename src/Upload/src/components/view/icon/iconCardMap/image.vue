@@ -23,7 +23,7 @@ export default {
         <i class="el-icon-picture-outline"></i>
         <img
           src={viewUrl || IMAGE_FALLBACK}
-          className={classnames(className(PREFIX, 'image', 'cover'))}
+          class={classnames(className(PREFIX, 'image', 'cover'))}
         />
       </div>
     );

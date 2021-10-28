@@ -58,7 +58,7 @@
 
       return (
         <div
-          className={classnames(
+          class={classnames(
             'chunk-upload-list-progress',
             {
               'chunk-upload-list-progress-error': !!error,
@@ -80,7 +80,7 @@
             ])}
           ></el-progress>
           <span
-            className="chunk-upload-list-progress-status"
+            class="chunk-upload-list-progress-status"
             title={origin.step}
           >
             {this.status}

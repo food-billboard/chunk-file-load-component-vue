@@ -82,15 +82,4 @@ export default {
 .chunk-upload-view-card-icon {
   font-size: 1.5em;
 }
-.chunk-upload-icon-card-image {
-  font-size: 1.2em;
-}
-.chunk-upload-icon-card-image-cover {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0.7;
-}
 </style>

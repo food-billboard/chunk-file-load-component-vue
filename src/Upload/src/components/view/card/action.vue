@@ -36,7 +36,7 @@ export default {
             onClick={this.onStop}
             icon={stopIcon || "el-icon-video-pause"}
             loading={this.cancelLoading}
-            type="link"
+            type="text"
           ></el-button>
         );
       }
@@ -45,7 +45,7 @@ export default {
           onClick={this.onUpload}
           icon={uploadIcon || "el-icon-video-play"}
           loading={this.cancelLoading}
-          type={'link'}
+          type="text"
         ></el-button>
       );
     },
@@ -80,17 +80,17 @@ export default {
               loading={this.cancelLoading}
               onClick={this.handleCancel}
               icon={deleteIconNode || "el-icon-delete"}
-              type="link"
+              type="text"
             />
           )
         ),
         (
           previewShow && (
-            <Button
+            <el-button
               onClick={this.handlePreview}
               icon={previewIconNode || "el-icon-view"}
               loading={this.cancelLoading}
-              type="link"
+              type="text"
               disabled={!this.value.local?.value?.preview && !this.previewFile}
             />
           )
@@ -100,7 +100,7 @@ export default {
   },
   render() {
     return (
-      <div style={this.style} className={classnames('chunk-upload-action-modal', this.className)}>
+      <div style={this.style} class={classnames('chunk-upload-action-modal', this.className)}>
         {this.actionRender}
       </div>
     )

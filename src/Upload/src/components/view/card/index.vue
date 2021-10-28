@@ -25,25 +25,31 @@
     ],
     render() {
       const value = this.getValue
-      return value.map((item) => {
-        const result = itemRender(this.$props, item, value);
-        return (
-          <view-item
-            value={item}
-            key={item.id}
-            showUploadList={this.showUploadList}
-            onCancel={this.onCancel}
-            onUpload={this.onUpload}
-            onStop={this.onStop}
-            iconRender={this.iconRender}
-            viewType={this.viewType}
-            viewStyle={this.viewStyle}
-            itemRender={result}
-            onPreview={this.onPreview}
-            getValue={this.getValue}
-          ></view-item>
-        );
-      })
+      return (
+        <template style={{display: "block"}}>
+          {
+            value.map((item) => {
+              const result = itemRender(this.$props, item, value);
+              return (
+                <view-item
+                  value={item}
+                  key={item.id}
+                  showUploadList={this.showUploadList}
+                  onCancel={this.onCancel}
+                  onUpload={this.onUpload}
+                  onStop={this.onStop}
+                  iconRender={this.iconRender}
+                  viewType={this.viewType}
+                  viewStyle={this.viewStyle}
+                  itemRender={result}
+                  onPreview={this.onPreview}
+                  getValue={this.getValue}
+                ></view-item>
+              );
+            })
+          }
+        </template>
+      )
     
     }
 
