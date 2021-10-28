@@ -8,7 +8,7 @@ export default {
     ElButton: Button
   },
   props: {
-    style: Object,
+    actionStyle: Object,
     className: String,
     onStop: Function,
     onCancel: Function,
@@ -50,14 +50,12 @@ export default {
       );
     },
     handlePreview() {
-      return this.onPreview?.(value);
+      return this.onPreview?.(this.value);
     },
     async handleCancel() {
       this.cancelLoading = true 
-      const result = await this.onCancel?.(value);
-      if(!result) {
-        this.cancelLoading = false 
-      }
+      const result = await this.onCancel?.(this.value);
+      this.cancelLoading = false 
     }
   },
   computed: {
@@ -100,7 +98,7 @@ export default {
   },
   render() {
     return (
-      <div style={this.style} class={classnames('chunk-upload-action-modal', this.className)}>
+      <div style={this.actionStyle} class={classnames('chunk-upload-action-modal', this.className)}>
         {this.actionRender}
       </div>
     )
@@ -121,5 +119,8 @@ export default {
   justify-content: center;
   flex-wrap: wrap;
   z-index: 1;
+}
+.chunk-upload-action-modal .el-button.is-loading:before {
+  background-color: transparent;
 }
 </style>

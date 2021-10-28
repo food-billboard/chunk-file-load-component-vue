@@ -25,8 +25,8 @@
       getValue: Array 
     },
     watch: {
-      value() {
-        this.isComplete = this.value.local?.type === 'url'
+      value(value) {
+        this.isComplete = value.local?.type === 'url'
       }
     },
     data() {
@@ -72,38 +72,53 @@
       const { local, id, task } = this.value 
       const [ complete, total, current ] = this.progressInfo
 
+      const actionProps = {
+        props: {
+          "on-cancel": this.onCancel,
+          "on-stop": this.handleStop,
+          "on-upload": this.handleUpload,
+          isDealing: this.isDealing,
+          isComplete: this.isComplete,
+          value: this.value,
+          previewFile: this.previewFile,
+          showUploadList: this.showUploadList,
+          viewType: this.viewType,
+          "on-preview": this.onPreview,
+        }
+      }
+
+      const progressProps = {
+        props: {
+          file:this.value,
+          "on-change": this.onProgressChange,
+          className: "chunk-upload-card-item-progress",
+          showInfo: false,
+          strokeWidth: 5,
+          progress: this.progressInfo,
+          styleProps: {
+            visibility: this.isComplete ? 'hidden' : 'visible'
+          }
+        }
+      }
+
       const node = (
         <div class={'chunk-upload-card-item'} style={this.viewStyle}>
           <el-icon 
             iconRender={this.iconRender} 
             file={this.value} 
             viewType={this.viewType} 
+            iconStyle={{color: "red"}}
           ></el-icon>
           <cus-progress
-            file={this.value}
-            onChange={this.onProgressChange}
-            class="chunk-upload-card-item-progress"
-            showInfo={false}
-            strokeWidth={5}
-            progress={this.progressInfo}
-            style={{
-              visibility: this.isComplete ? 'hidden' : 'visible'
-            }}
+            {...progressProps}
           ></cus-progress>
           <div class="chunk-upload-card-item-info">
             <span>{local?.value?.filename || local?.value?.fileId || id}</span>
           </div>
           <action-modal
-            onCancel={this.onCancel}
-            onStop={this.handleStop}
-            onUpload={this.handleUpload}
-            isDealing={this.isDealing}
-            isComplete={this.isComplete}
-            value={this.value}
-            previewFile={this.previewFile}
-            showUploadList={this.showUploadList}
-            viewType={this.viewType}
-            onPreview={this.onPreview}
+            {
+              ...actionProps
+            }
           />
         </div>
       )

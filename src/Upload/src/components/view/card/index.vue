@@ -19,10 +19,6 @@
     components: {
       ViewItem,
     },
-    inject: [
-      "instance",
-      "setValue",
-    ],
     render() {
       const value = this.getValue
       return (
@@ -30,20 +26,25 @@
           {
             value.map((item) => {
               const result = itemRender(this.$props, item, value);
+              const props = {
+                props: {
+                  value: item,
+                  key: item.id,
+                  showUploadList: this.showUploadList,
+                  "on-cancel": this.onCancel,
+                  "on-upload": this.onUpload,
+                  "on-stop": this.onStop,
+                  "on-preview": this.onPreview,
+                  iconRender: this.iconRender,
+                  viewType: this.viewType,
+                  viewStyle: this.viewStyle,
+                  itemRender: result,
+                  getValue: this.getValue
+                }
+              }
               return (
                 <view-item
-                  value={item}
-                  key={item.id}
-                  showUploadList={this.showUploadList}
-                  onCancel={this.onCancel}
-                  onUpload={this.onUpload}
-                  onStop={this.onStop}
-                  iconRender={this.iconRender}
-                  viewType={this.viewType}
-                  viewStyle={this.viewStyle}
-                  itemRender={result}
-                  onPreview={this.onPreview}
-                  getValue={this.getValue}
+                  {...props}
                 ></view-item>
               );
             })

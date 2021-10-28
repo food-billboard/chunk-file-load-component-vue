@@ -8,16 +8,16 @@ const PREFIX = 'chunk-upload-icon-card'
 export default {
   props: {
     className: String,
-    style: Object,
+    iconStyle: Object,
     iconRender: Function,
     file: Object
   },
   render() {
-    const { className: propsClassName, style, file } = this.$props
+    const { className: propsClassName, iconStyle, file } = this.$props
     const viewUrl = get(file, 'local.value.preview');
     return (
       <div
-        style={style}
+        style={iconStyle}
         class={classnames(className(PREFIX, 'image'), propsClassName)}
       >
         <i class="el-icon-picture-outline"></i>

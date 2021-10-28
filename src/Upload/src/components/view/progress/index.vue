@@ -17,7 +17,8 @@
       },
       progress: Array,
       className: String,
-      strokeWidth: Number
+      strokeWidth: Number,
+      styleProps: Object 
     },
     inject: [
       "locale"
@@ -54,7 +55,6 @@
     render() {
       const { error } = this.file 
       const [, , , , origin] = this.progress
-      const { style } = this.$attrs
 
       return (
         <div
@@ -65,7 +65,7 @@
             },
             this.className,
           )}
-          style={style}
+          style={this.styleProps}
         >
           <el-progress
             percentage={this.realValue}

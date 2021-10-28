@@ -21,7 +21,7 @@ const DEFAULT_SET_ICON = "FileTwoTone";
 
 export default {
   props: {
-    style: Object,
+    iconStyle: Object,
     className: String,
     file: Object,
     viewType: String,
@@ -56,7 +56,7 @@ export default {
     const Icon = this.IconMap[this.fileType] || this.DEFAULT_ICON;
     const icon = (
       <Icon
-        style={this.style}
+        iconStyle={this.iconStyle}
         className={classnames(
           {
             ['chunk-upload-view-list-icon']: this.viewType === 'list',

@@ -98,9 +98,9 @@
           let result = [];
           const { error } = task;
           if (task.task?.tool.file.isStop(task.task)) {
-            result = instance.start(fileTask.symbol);
+            result = this.instance.start(fileTask.symbol);
           } else if (!error) {
-            result = instance.deal(fileTask.symbol);
+            result = this.instance.deal(fileTask.symbol);
           } else if (task.task) {
             const prevValue = this.getValue
             const newValue = prevValue.map((item) => {
