@@ -20,6 +20,24 @@ export const Basic = () => ({
     }
   },
   render() {
+    const props = {
+      props: {
+        immediately: false,
+        "on-remove": sleep.bind(null, 1000),
+        viewType: this.viewType,
+        request: {
+          exitDataFn,
+          uploadFn,
+          completeFn,
+          callback(err, value) {
+            console.log(err, value);
+            if (!err) {
+              console.log('Upload Done!!');
+            }
+          }
+        }
+      }
+    }
     return (
       <div>
         <el-radio-group value={this.viewType}>
@@ -27,20 +45,9 @@ export const Basic = () => ({
           <el-radio key="card" label="card" value="card" onChange={this.onRadioChange.bind(this, "card")}>卡片</el-radio>
         </el-radio-group>
         <upload-component
-          immediately={false}
-          onRemove={sleep.bind(null, 1000)}
-          viewType={this.viewType}
-          request={{
-            exitDataFn,
-            uploadFn,
-            completeFn,
-            callback(err, value) {
-              console.log(err, value);
-              if (!err) {
-                console.log('Upload Done!!');
-              }
-            },
-          }}
+          {
+            ...props
+          }
         ></upload-component>
       </div>
     )

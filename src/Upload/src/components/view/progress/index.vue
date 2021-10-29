@@ -18,7 +18,9 @@
       progress: Array,
       className: String,
       strokeWidth: Number,
-      styleProps: Object 
+      styleProps: Object,
+      textInside: Boolean,
+      format: Function
     },
     inject: [
       "locale"
@@ -56,6 +58,21 @@
       const { error } = this.file 
       const [, , , , origin] = this.progress
 
+      const progressProps = {
+        props: {
+          percentage: this.realValue,
+          status: !!error ? 'exception' : undefined,
+          ...omit(this.$props, [
+            "file",
+            "className",
+            "style",
+            "onChange",
+            "fixed",
+            "progress"
+          ])
+        }
+      }
+
       return (
         <div
           class={classnames(
@@ -68,16 +85,7 @@
           style={this.styleProps}
         >
           <el-progress
-            percentage={this.realValue}
-            status={!!error ? 'exception' : undefined}
-            {...omit(this.$props, [
-              "file",
-              "className",
-              "style",
-              "onChange",
-              "fixed",
-              "progress"
-            ])}
+            {...progressProps}
           ></el-progress>
           <span
             class="chunk-upload-list-progress-status"

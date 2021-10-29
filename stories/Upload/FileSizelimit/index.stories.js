@@ -15,26 +15,33 @@ export const FileSizeLimit = () => ({
     }
   },
   render() {
+
+    const props = {
+      props: {
+        "on-validator": this.onValidator,
+        viewType: "list",
+        minSize: 10,
+        maxSize: 100,
+        request: {
+          exitDataFn,
+          uploadFn,
+          completeFn,
+          callback(err, value) {
+            console.log(err, value);
+            if (!err) {
+              console.log('Upload Done!!');
+            }
+          },
+        }
+      }
+    }
+
     return (
       <div>
         <p>文件上传大小限制</p>
         <p>限制上传在10-100</p>
         <upload-component
-          onValidator={this.onValidator}
-          viewType="list"
-          minSize={10}
-          maxSize={100}
-          request={{
-            exitDataFn,
-            uploadFn,
-            completeFn,
-            callback(err, value) {
-              console.log(err, value);
-              if (!err) {
-                console.log('Upload Done!!');
-              }
-            },
-          }}
+          {...props}
         ></upload-component>
       </div>
     )

@@ -24,11 +24,11 @@
       viewStyle: Object,
       getValue: Array 
     },
-    watch: {
-      value(value) {
-        this.isComplete = value.local?.type === 'url'
-      }
-    },
+    // watch: {
+    //   value(value) {
+    //     this.isComplete = value.local?.type === 'url'
+    //   }
+    // },
     data() {
       return {
         isDealing: false,
@@ -97,7 +97,9 @@
           progress: this.progressInfo,
           styleProps: {
             visibility: this.isComplete ? 'hidden' : 'visible'
-          }
+          },
+          textInside: true,
+          format() { return "" }
         }
       }
 

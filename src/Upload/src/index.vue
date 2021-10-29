@@ -38,11 +38,11 @@
         required: false,
         validator: PropsValidator.defaultValue 
       },
-      "on-change": {
+      onChange: {
         type: Function,
         required: false,
       },
-      "on-remove": {
+      onRemove: {
         type: Function,
         default() {
           return function() {
@@ -50,11 +50,11 @@
           }
         }
       },
-      "on-validator": {
+      onValidator: {
         type: Function,
         required: false,
       },
-      "on-error": {
+      onError: {
         type: Function,
         required: false,
       },
@@ -82,15 +82,8 @@
       lifecycle: Object,
       iconRender: Function,
       itemRender: Function,
-      previewFile: {
-        type: Function,
-        default() {
-          return function() {
-            return false 
-          }
-        }
-      },
-      "on-preview-file": {
+      previewFile: Function,
+      onPreviewFile: {
         type: Function,
         default() {
           return function() {

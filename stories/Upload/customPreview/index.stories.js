@@ -32,24 +32,31 @@ export const PreviewFile = () => ({
     }
   },
   render() {
+
+    const props = {
+      props: {
+        previewFile: this.previewFile,
+        "on-previewFile": this.onPreview,
+        viewType: "list",
+        request: {
+          exitDataFn,
+          uploadFn,
+          completeFn,
+          callback(err, value) {
+            console.log(err, value);
+            if (!err) {
+              console.log('Upload Done!!');
+            }
+          },
+        }
+      }
+    }
+
     return (
       <div>
         <p>自定义文件预览</p>
         <upload-component
-          previewFile={this.previewFile}
-          onPreviewFile={this.onPreview}
-          viewType="list"
-          request={{
-            exitDataFn,
-            uploadFn,
-            completeFn,
-            callback(err, value) {
-              console.log(err, value);
-              if (!err) {
-                console.log('Upload Done!!');
-              }
-            },
-          }}
+          {...props}
         ></upload-component>
       </div>
     )

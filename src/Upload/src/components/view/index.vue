@@ -135,6 +135,7 @@
         onRemove,
         previewFile,
         onPreviewFile,
+        onCancel,
         ...nextProps
       } = this.$props
       const props = {

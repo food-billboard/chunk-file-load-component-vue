@@ -17,25 +17,32 @@ export const Control = () => ({
     }
   },
   render() {
+
+    const props = {
+      props: {
+        value: this.value,
+        "on-remove": sleep.bind(null, 1000),
+        viewType: "list",
+        "on-change": this.onValueChange,
+        request: {
+          exitDataFn,
+          uploadFn,
+          completeFn,
+          callback(err, value) {
+            console.log(err, value);
+            if (!err) {
+              console.log('Upload Done!!');
+            }
+          },
+        }
+      }
+    }
+
     return (
       <div>
         <p>上传受控</p>
         <upload-component
-          value={this.value}
-          onRemove={sleep.bind(null, 1000)}
-          viewType="list"
-          onChange={this.onValueChange}
-          request={{
-            exitDataFn,
-            uploadFn,
-            completeFn,
-            callback(err, value) {
-              console.log(err, value);
-              if (!err) {
-                console.log('Upload Done!!');
-              }
-            },
-          }}
+          {...props}
         ></upload-component>
       </div>
     )

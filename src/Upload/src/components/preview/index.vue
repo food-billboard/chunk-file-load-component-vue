@@ -24,14 +24,16 @@ export default {
       const [, result] = this.onPreviewFile
           ? await withTry(this.onPreviewFile)(this.value)
           : [, true];
-        if (result) {
-          this.value = value 
-          this.visible = true 
-        }
+      if (result) {
+        this.value = value 
+        this.visible = true 
+      }
     },
     async fetchPreviewFile(value, previewFile, viewType) {
       let result = false;
-      if (previewFile) result = await previewFile?.(value, viewType);
+      if (previewFile) {
+        result = await previewFile?.(value, viewType)
+      }
       this.customPreview = result 
     },
     beforeClose() {
@@ -50,21 +52,19 @@ export default {
     previewFile() {
       if(this.visible && !!this.value) this.fetchPreviewFile(this.value, this.previewFile, this.viewType)
     },
-    viewType() {
-      if(this.visible && !!this.value) this.fetchPreviewFile(this.value, this.previewFile, this.viewType)
-    }
   },
   render() {
-    if(this.customPreview !== false && this.customPreview !== undefined && visible) {
+    if(this.customPreview !== false && this.customPreview !== undefined && this.visible) {
       return this.customPreview
     }
     return (
       <el-dialog
         visible={this.visible}
         beforeClose={this.beforeClose}
+        customClass="chunk-upload-preview-modal"
       >
         <img  
-          className="chunk-upload-preview-image"
+          class="chunk-upload-preview-image"
           src={this.preview || IMAGE_FALLBACK}
         />
       </el-dialog>
@@ -74,8 +74,13 @@ export default {
 }
 </script>
 <style>
+.chunk-upload-preview-modal .el-dialog__header,
+.chunk-upload-preview-modal .el-dialog__body {
+  padding: 0;
+}
 .chunk-upload-preview-image {
   width: 100%;
   max-width: 500px;
+  vertical-align: middle;
 }
 </style>

@@ -21,7 +21,6 @@ export const Error = () => ({
         <p>文件首次上传会出错</p>
         <upload-component
           immediately={false}
-          onRemove={sleep.bind(null, 1000)}
           viewType="list"
           request={{
             exitDataFn,
