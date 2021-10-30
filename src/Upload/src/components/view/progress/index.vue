@@ -28,14 +28,14 @@
     computed: {
       percent() {
         const [, , , progress, origin] = this.progress
-        const { step } = origin;
+        const { step } = origin || {};
         if (step === 2) {
           return progress / 2;
         }
         if (step === 3) {
           return 50 + progress / 2;
         }
-        return progress
+        return progress || 0
       },
       realValue() {
         return parseFloat(this.percent.toFixed(this.fixed));
@@ -89,7 +89,7 @@
           ></el-progress>
           <span
             class="chunk-upload-list-progress-status"
-            title={origin.step}
+            title={origin?.step}
           >
             {this.status}
           </span>

@@ -67,12 +67,12 @@
         }
       },
       viewClassName: String,
-      viewType: {
-        type: String,
-        required: false,
-        default: "list",
-        validator: PropsValidator.viewType 
-      },
+      // viewType: {
+      //   type: String,
+      //   required: false,
+      //   default: "list",
+      //   validator: PropsValidator.viewType 
+      // },
       request: {
         type: Object,
         default() {
@@ -120,6 +120,7 @@
       const stateFiles = propsValueFormat(this.defauleValue || this.value || [])
       return {
         stateFiles,
+        viewType: "card"
       }
     },
     provide() {
@@ -135,15 +136,14 @@
         if(!this.value) {
           this.stateFiles = value
         } 
-        this["on-change"]?.(value)
+        this.onChange?.(value)
       },
       selectFiles() {
         this.$refs["chunk-file-load-ref"].selectFiles()
       },
       onDrop(resolveFiles, rejectFiles) {
         const { wrapperFiles, errorFiles } = this.addTask(resolveFiles);
-        this["on-validator"]?.(
-          [
+        this.onValidator?.([
             ...errorFiles.map((item) => {
               return {
                 file: item,
@@ -157,8 +157,8 @@
             }),
             ...rejectFiles,
           ],
-          wrapperFiles.map((item) => item.originFile),
-        );
+          wrapperFiles.map((item) => item.originFile)
+        )
         this.setFiles([...this.files, ...wrapperFiles]);
       },
       callbackWrapper(callback, error, value) {
@@ -167,7 +167,7 @@
           let dealError = false;
           const result = this.formatFiles.map((item) => {
             const isStop = get(item.task, "tool.file.isStop")
-            if (item.name !== value || (isStop && isStop())) {
+            if (item.name !== value || (isStop?.call(item.task.tool.file))) {
               return item;
             }
             dealError = true;
@@ -177,10 +177,11 @@
             return errorFiles;
           })
           this.setFiles(result)
-          dealError && this["on-error"]?.(error, errorFiles);
+          dealError && this.onError?.(error, errorFiles);
         }
+
         // release emitter 
-        releaseEmitter(value)
+        if(!error) releaseEmitter(value)
         callback?.(error, value);
       },
       onInternalError(request) {
@@ -326,10 +327,9 @@
             iconRender: this.iconRender,
             itemRender: this.itemRender,
             previewFile: this.previewFile,
-            "on-preview-file": this.onPreviewFile,
             "on-cancel": this.releasePreviewCache,
             getValue: this.formatFiles,
-            onPreview: this.onPreview
+            "on-preview": this.onPreview
           }
         }
         return (
@@ -339,10 +339,17 @@
         );
       }
     },
-    watch: {
-      
-    },
     render() {
+
+      const previewProps = {
+        props: {
+          previewFile: this.previewFile,
+          viewType: this.viewType,
+          "on-preview-file": this.onPreviewFile
+        },
+        ref: "previewModalRef"
+      }
+
       return (
         <div
           class={classnames('chunk-upload-container', {
@@ -380,10 +387,7 @@
             !!this.showUploadList && this.fileDomList
           }
           <preview-modal
-            ref={"previewModalRef"}
-            previewFile={this.previewFile}
-            viewType={this.viewType}
-            onPreviewFile={this.onPreviewFile}
+            {...previewProps}
           ></preview-modal>
         </div>
       )

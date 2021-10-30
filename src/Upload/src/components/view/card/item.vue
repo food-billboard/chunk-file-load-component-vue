@@ -24,16 +24,12 @@
       viewStyle: Object,
       getValue: Array 
     },
-    // watch: {
-    //   value(value) {
-    //     this.isComplete = value.local?.type === 'url'
-    //   }
-    // },
     data() {
       return {
         isDealing: false,
         isComplete: false,
-        progress: undefined
+        progress: undefined,
+        progressInfo: new Array(3).fill(0)
       }
     },
     inject: [
@@ -48,25 +44,29 @@
         await this.onUpload(this.value);
       },
       onProgressChange() {
-        const { task } = this.value
-        this.isDealing = !!task?.tool.file.isTaskDealing(task);
-        this.isComplete = !!task?.tool.file.isTaskComplete(task);
-      }
-    },
-    computed: {
-      progressInfo() {
-        if(!this.progress) return []
-        return this.progress.progressInfo()
+        const { task, local } = this.value
+        if(!task && local?.type === "url") {
+          this.isDealing = false 
+          this.isComplete = true 
+        }else {
+          this.isDealing = !!task?.tool.file.isTaskDealing(task);
+          this.isComplete = !!task?.tool.file.isTaskComplete(task);
+        }
+      },
+      onStatusChange(_, progressInfo) {
+        this.progressInfo = progressInfo
       }
     },
     created() {
       const { task } = this.value 
       this.progress = new ProgressWrapper({
-        name: task.symbol,
+        name: task?.symbol,
         getValue: this.getValue,
         emitter: this.emitter,
-        instance: this.instance
+        instance: this.instance,
+        onChange: this.onStatusChange.bind(this)
       })
+      this.onProgressChange()
     },
     render() {
       const { local, id, task } = this.value 
@@ -124,7 +124,6 @@
           />
         </div>
       )
-      
 
       if(this.itemRender) {
         return this.itemRender(node, {

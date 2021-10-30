@@ -156,7 +156,10 @@
             }
           })
           result.resolve = result.resolve.reduce((acc, cur) => {
-            if(cur !== file) return cur 
+            if(cur !== file) {
+              acc.push(cur)
+              return acc 
+            }
             const errors = this.fileValidator(cur)
             if(!errors.length) {
               acc.push(cur)
@@ -169,6 +172,7 @@
             return acc 
           }, [])
         })
+
         if(!!result.reject.length) {
           this.isDragReject = true
         }else {

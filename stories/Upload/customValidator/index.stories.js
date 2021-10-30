@@ -23,25 +23,32 @@ export const CustomValidator = () => ({
     }
   },
   render() {
+
+    const props = {
+      props: {
+        "on-validator": this.onValidator,
+        validator: this.validator,
+        request: {
+          exitDataFn,
+          uploadFn,
+          completeFn,
+          callback(err, value) {
+            console.log(err, value);
+            if (!err) {
+              console.log('Upload Done!!');
+            }
+          },
+        }
+      }
+    }
+
     return (
       <div>
         <p>自定义上传验证</p>
-        {/* <upload-component
-          onValidator={this.onValidator}
-          validator={this.validator}
-          viewType="list"
-          request={{
-            exitDataFn,
-            uploadFn,
-            completeFn,
-            callback(err, value) {
-              console.log(err, value);
-              if (!err) {
-                console.log('Upload Done!!');
-              }
-            },
-          }}
-        ></upload-component> */}
+        <p>只能上传图片</p>
+        <upload-component
+          {...props}
+        ></upload-component>
       </div>
     )
   }

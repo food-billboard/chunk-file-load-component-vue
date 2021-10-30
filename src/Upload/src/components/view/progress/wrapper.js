@@ -7,12 +7,14 @@ export default class {
     name,
     getValue,
     emitter,
-    instance
+    instance,
+    onChange,
   }) {
     this.name = name 
     this.getValue = getValue
     this.emitter = emitter
     this.instance = instance
+    this.onChange = onChange
 
     this.created()
   }
@@ -21,6 +23,7 @@ export default class {
   getValue 
   emitter 
   instance 
+  onChange
 
   progress = {
     current: 0,
@@ -44,6 +47,7 @@ export default class {
     const status = target.getStatus()
     const progress = target.task?.process
     this.progress = merge({}, this.progress, progress, { step: status ?? -3 })
+    this.onChange?.(this.progress, this.progressInfo())
   }
 
   progressInfo() {
@@ -58,6 +62,7 @@ export default class {
     const progress = response?.process;
     const status = instance.getStatus(name);
     this.progress = merge({}, this.progress, progress, { step: status ?? -3 })
+    this.onChange?.(this.progress, this.progressInfo())
   }
 
 }

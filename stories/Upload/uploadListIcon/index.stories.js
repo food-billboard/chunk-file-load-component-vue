@@ -28,7 +28,7 @@ export const UploadListIcon = () => ({
           return { showRemoveIcon: false };
         case 'custom':
           return {
-            removeIcon: () => <span>delete</span>,
+            removeIcon: () => "el-icon-delete-solid",
           };
       }
     }
@@ -37,13 +37,13 @@ export const UploadListIcon = () => ({
     return (
       <div>
         <p>控制上传列表相关图标</p>
+        <p>值为element ui 的 icon名称</p>
         <el-radio-group value={this.removeIcon}>
           <el-radio key="true" label="true" value="true" onChange={this.onRadioChange.bind(this, "true")}>显示默认删除图标</el-radio>
           <el-radio key="false" label="false" value="false" onChange={this.onRadioChange.bind(this, "false")}>不显示删除图标</el-radio>
           <el-radio key="custom" label="custom" value="custom" onChange={this.onRadioChange.bind(this, "custom")}>自定义删除图标</el-radio>
         </el-radio-group>
         <upload-component
-          viewType="list"
           showUploadList={this.showUploadList}
           request={{
             exitDataFn,

@@ -14,6 +14,7 @@ export const Control = () => ({
   methods: {
     onValueChange(value) {
       this.value = value 
+      console.log("value changed: ", this.value)
     }
   },
   render() {

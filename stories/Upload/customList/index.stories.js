@@ -17,7 +17,7 @@ export const ItemRender = () => ({
       const fileName = file.task.file.name;
       return (
         <div>
-          {fileName}- 进度: {(complete / total) * 100 || 0}- 状态: {status}-
+          {fileName}，进度: {(complete / total) * 100 || 0}， 状态: {status}，
           <span onClick={upload}>上传</span>-<span onClick={cancel}>取消</span>
         </div>
       );

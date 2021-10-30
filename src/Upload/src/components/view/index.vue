@@ -14,7 +14,6 @@
       itemRender: Function,
       onRemove: Function,
       previewFile: Function,
-      onPreviewFile: Function,
       onPreview: Function,
       getValue: Array 
     },
@@ -134,7 +133,6 @@
         viewType,
         onRemove,
         previewFile,
-        onPreviewFile,
         onCancel,
         ...nextProps
       } = this.$props

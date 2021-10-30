@@ -1,4 +1,3 @@
-import { Dialog } from 'element-ui'
 import UploadComponent from '../../../src/Upload'
 import UploadDocs from '../index.md'
 import { exitDataFn, uploadFn, completeFn } from '../../utils'
@@ -6,38 +5,22 @@ import { exitDataFn, uploadFn, completeFn } from '../../utils'
 export const PreviewFile = () => ({
   components: {
     UploadComponent,
-    ElDialog: Dialog
-  },
-  data() {
-    return {
-      visible: false
-    }
   },
   methods: {
     previewFile(file) {
       console.log('wrapperFile', file);
       return (
-        <el-dialog
-          footer={null}
-          onClose={function() { this.previewVisible = false }}
-          visible={this.previewVisible}
-        >
+        <div style={{padding: "20px"}}>
           自定义预览
-        </el-dialog>
-      );
+        </div>
+      )
     },
-    onPreview() {
-      this.previewVisible = true 
-      return true;
-    }
   },
   render() {
 
     const props = {
       props: {
         previewFile: this.previewFile,
-        "on-previewFile": this.onPreview,
-        viewType: "list",
         request: {
           exitDataFn,
           uploadFn,

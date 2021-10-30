@@ -12,6 +12,7 @@
       viewStyle: Object,
       showUploadList: Boolean | Object,
       iconRender: Function,
+      itemRender: Function,
       previewFile: Function,
       className: String,
       getValue: Array,

@@ -27,6 +27,7 @@ export default {
       if (result) {
         this.value = value 
         this.visible = true 
+        await this.fetchPreviewFile(this.value, this.previewFile, this.viewType)
       }
     },
     async fetchPreviewFile(value, previewFile, viewType) {
@@ -45,28 +46,25 @@ export default {
       return get(this.value, 'local.value.preview')
     }
   },
-  watch: {
-    value() {
-      if(this.visible && !!this.value) this.fetchPreviewFile(this.value, this.previewFile, this.viewType)
-    },
-    previewFile() {
-      if(this.visible && !!this.value) this.fetchPreviewFile(this.value, this.previewFile, this.viewType)
-    },
-  },
   render() {
-    if(this.customPreview !== false && this.customPreview !== undefined && this.visible) {
-      return this.customPreview
-    }
     return (
       <el-dialog
         visible={this.visible}
         beforeClose={this.beforeClose}
         customClass="chunk-upload-preview-modal"
       >
-        <img  
-          class="chunk-upload-preview-image"
-          src={this.preview || IMAGE_FALLBACK}
-        />
+        {
+          this.customPreview !== false && this.customPreview !== undefined ? (
+            this.customPreview
+          )
+          :
+          (
+            <img  
+              class="chunk-upload-preview-image"
+              src={this.preview || IMAGE_FALLBACK}
+            />
+          )
+        }
       </el-dialog>
     )
   }

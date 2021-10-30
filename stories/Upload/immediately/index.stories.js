@@ -11,7 +11,7 @@ export const Immediately = () => ({
       <div>
         <p>添加的文件会立即上传</p>
         <upload-component
-          viewType="list"
+          immediately={true}
           request={{
             exitDataFn,
             uploadFn,

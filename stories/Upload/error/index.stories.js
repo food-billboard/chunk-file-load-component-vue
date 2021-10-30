@@ -10,8 +10,10 @@ export const Error = () => ({
   },
   methods: {
     customUploadFn(formData, name) {
-      if(!errorMap[name]) return { data: -1 }
-      errorMap[name] = true 
+      if(!errorMap[name]) {
+        errorMap[name] = true
+        return { data: -1 }
+      }
       return uploadFn(formData, name)
     }
   },
@@ -21,7 +23,6 @@ export const Error = () => ({
         <p>文件首次上传会出错</p>
         <upload-component
           immediately={false}
-          viewType="list"
           request={{
             exitDataFn,
             uploadFn: this.customUploadFn,
