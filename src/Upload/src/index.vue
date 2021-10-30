@@ -67,12 +67,12 @@
         }
       },
       viewClassName: String,
-      // viewType: {
-      //   type: String,
-      //   required: false,
-      //   default: "list",
-      //   validator: PropsValidator.viewType 
-      // },
+      viewType: {
+        type: String,
+        required: false,
+        default: "list",
+        validator: PropsValidator.viewType 
+      },
       request: {
         type: Object,
         default() {
@@ -120,7 +120,6 @@
       const stateFiles = propsValueFormat(this.defauleValue || this.value || [])
       return {
         stateFiles,
-        viewType: "card"
       }
     },
     provide() {
@@ -350,14 +349,33 @@
         ref: "previewModalRef"
       }
 
+      const domListProps = {
+        props: {
+          viewStyle: this.viewStyle,
+          className: this.viewClassName,
+          viewType: this.viewType,
+          showUploadList: this.showUploadList,
+          "on-remove": this.onRemove,
+          iconRender: this.iconRender,
+          itemRender: this.itemRender,
+          previewFile: this.previewFile,
+          "on-cancel": this.releasePreviewCache,
+          getValue: this.formatFiles,
+          "on-preview": this.onPreview,
+          containerProps: {
+            class: classnames('chunk-upload-container', {
+              ['chunk-upload-container-list']:
+                this.viewType === 'list' && !this.containerRender,
+              ['chunk-upload-container-card']:
+                this.viewType === 'card' && !this.containerRender,
+            })
+          }
+        }
+      }
+
       return (
-        <div
-          class={classnames('chunk-upload-container', {
-            ['chunk-upload-container-list']:
-              this.viewType === 'list' && !this.containerRender,
-            ['chunk-upload-container-card']:
-              this.viewType === 'card' && !this.containerRender,
-          })}
+        <view-list
+          {...domListProps}
         >
           <drag
             accept={this.accept}
@@ -383,13 +401,10 @@
             >
             </container>
           </drag>
-          {
-            !!this.showUploadList && this.fileDomList
-          }
           <preview-modal
             {...previewProps}
           ></preview-modal>
-        </div>
+        </view-list>
       )
 
     }

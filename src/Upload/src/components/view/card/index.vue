@@ -16,6 +16,7 @@
       previewFile: Function,
       className: String,
       getValue: Array,
+      containerProps: Object 
     },
     components: {
       ViewItem,
@@ -23,9 +24,10 @@
     render() {
       const value = this.getValue
       return (
-        <template style={{display: "block"}}>
+        <div {...this.containerProps}>
+          {this.$slots.default}
           {
-            value.map((item) => {
+            !!this.showUploadList && value.map((item) => {
               const result = itemRender(this.$props, item, value);
               const props = {
                 props: {
@@ -50,7 +52,7 @@
               );
             })
           }
-        </template>
+        </div>
       )
     
     }

@@ -34,10 +34,10 @@ export default {
 
     return (
       <div {...this.rootProps} class={this.dropzoneClassName} style={this.containerStyle} >
+        {this.container}
         {
           this.$slots.default
         }
-        {this.container}
       </div>
     )
 

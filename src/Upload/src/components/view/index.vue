@@ -15,7 +15,8 @@
       onRemove: Function,
       previewFile: Function,
       onPreview: Function,
-      getValue: Array 
+      getValue: Array,
+      containerProps: Object 
     },
     inject: [
       "instance",
@@ -147,8 +148,8 @@
         }
       };
 
-      if(viewType == "list") return <list {...props} />
-      if(viewType == "card") return <card {...props} />
+      if(viewType == "list") return <list {...props}>{this.$slots.default}</list>
+      if(viewType == "card") return <card {...props}>{this.$slots.default}</card>
       
     }
 
