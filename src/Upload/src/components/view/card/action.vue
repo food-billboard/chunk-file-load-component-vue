@@ -34,7 +34,7 @@ export default {
         return (
           <el-button
             onClick={this.onStop}
-            icon={stopIcon || "el-icon-video-pause"}
+            icon={stopIcon || "bi bi-stop-circle"}
             loading={this.cancelLoading}
             type="text"
           ></el-button>
@@ -43,7 +43,7 @@ export default {
       return (
         <el-button
           onClick={this.onUpload}
-          icon={uploadIcon || "el-icon-video-play"}
+          icon={uploadIcon || "bi bi-play-circle"}
           loading={this.cancelLoading}
           type="text"
         ></el-button>
@@ -77,7 +77,7 @@ export default {
             <el-button
               loading={this.cancelLoading}
               onClick={this.handleCancel}
-              icon={deleteIconNode || "el-icon-delete"}
+              icon={deleteIconNode || "bi bi-trash"}
               type="text"
             />
           )
@@ -86,7 +86,7 @@ export default {
           previewShow && (
             <el-button
               onClick={this.handlePreview}
-              icon={previewIconNode || "el-icon-view"}
+              icon={previewIconNode || "bi bi-eye"}
               loading={this.cancelLoading}
               type="text"
               disabled={!this.value.local?.value?.preview && !this.previewFile}

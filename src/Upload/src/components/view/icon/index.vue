@@ -2,22 +2,9 @@
 import {  } from 'element-ui'
 import classnames from 'classnames'
 import { merge } from 'lodash'
-import IconListMap, { formatType as listFormatType, DEFAULT_ICON as DEFAULT_LIST_ICON, } from './iconListMap'
+import DefaultIconMap, { DEFAULT_SET_ICON } from './default'
+import IconListMap, { formatType as listFormatType, DEFAULT_ICON as DEFAULT_LIST_ICON } from './iconListMap'
 import IconCardMap, { DEFAULT_ICON as DEFAULT_CARD_ICON } from './iconCardMap'
-
-const DefaultIconMap = {
-  // image: FileImageTwoTone,
-  // video: VideoCameraTwoTone,
-  // markdown: FileMarkdownTwoTone,
-  // pdf: FilePdfTwoTone,
-  // ppt: FilePptTwoTone,
-  // text: FileTextTwoTone,
-  // unknown: FileUnknownTwoTone,
-  // word: FileWordTwoTone,
-  // zip: FileZipTwoTone,
-};
-
-const DEFAULT_SET_ICON = "FileTwoTone";
 
 export default {
   props: {

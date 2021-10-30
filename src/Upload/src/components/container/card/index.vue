@@ -21,8 +21,7 @@ export default {
         <div class={prefix}>
           <span class={`${prefix}-icon-content`}>
             {this.locale.containerIcon || (
-              "默认图标"
-              // <PlusOutlined className={`${prefix}-icon-content-main`} />
+              <i class={classnames("bi bi-plus-lg", `${prefix}-icon-content-main`)}></i>
             )}
           </span>
           <span>{this.locale.container}</span>

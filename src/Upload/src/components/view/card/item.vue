@@ -109,7 +109,6 @@
             iconRender={this.iconRender} 
             file={this.value} 
             viewType={this.viewType} 
-            iconStyle={{color: "red"}}
           ></el-icon>
           <cus-progress
             {...progressProps}

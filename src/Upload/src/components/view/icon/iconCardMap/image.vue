@@ -20,7 +20,7 @@ export default {
         style={iconStyle}
         class={classnames(className(PREFIX, 'image'), propsClassName)}
       >
-        <i class="el-icon-picture-outline"></i>
+        <i class="bi bi-card-image"></i>
         <img
           src={viewUrl || IMAGE_FALLBACK}
           class={classnames(className(PREFIX, 'image', 'cover'))}

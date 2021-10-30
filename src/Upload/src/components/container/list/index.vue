@@ -34,8 +34,7 @@ export default {
         {this.$slots.default}
         <span class={'chunk-upload-container-icon'}>
           {this.locale.containerIcon || (
-            // <FileTwoTone className={'chunk-upload-container-icon-main'} />
-            "默认图标"
+            <i class="bi bi-file-earmark chunk-upload-container-icon-main"></i>
           )}
         </span>
         <span>{this.locale.container || '点击或拖拽文件到此处'}</span>

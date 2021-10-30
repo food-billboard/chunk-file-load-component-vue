@@ -9,9 +9,6 @@ const iconValidatorMap = {
   video(type) {
     return type.startsWith('video/');
   },
-  markdown(type) {
-    return type === 'text/markdown';
-  },
   pdf(type) {
     return type === 'application/pdf';
   },
