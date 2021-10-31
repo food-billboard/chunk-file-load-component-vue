@@ -1,4 +1,5 @@
 <script>
+  import ViewItem from './item.vue'
   import { itemRender } from '../../../utils'
   export default {
     props: {
@@ -16,34 +17,45 @@
       getValue: Array,
       containerProps: Object 
     },
+    components: {
+      ViewItem
+    },
     render() {
       const value = this.getValue
       return (
         <div {...this.containerProps}>
           {this.$slots.default}
           {
-            !!this.showUploadList && value.map((item) => {
-              const result = itemRender(this.$props, item, value);
-              const props = {
-                props: {
-                  value: item,
-                  key: item.id,
-                  showUploadList: this.showUploadList,
-                  "on-cancel": this.onCancel,
-                  "on-upload": this.onUpload,
-                  "on-stop": this.onStop,
-                  "on-preview": this.onPreview,
-                  iconRender: this.iconRender,
-                  viewType: this.viewType,
-                  viewStyle: this.viewStyle,
-                  itemRender: result,
-                  getValue: this.getValue
+            !!this.showUploadList && (
+              <aside style={this.viewStyle} className={this.className}>
+                <ul className={'chunk-upload-list'}>
+                {
+                  value.map((item) => {
+                    const props = {
+                      value: item,
+                      key: item.id,
+                      showUploadList: this.showUploadList,
+                      "on-cancel": this.onCancel,
+                      "on-upload": this.onUpload,
+                      "on-stop": this.onStop,
+                      "on-preview": this.onPreview,
+                      iconRender: this.iconRender,
+                      viewType: this.viewType,
+                      itemRender: result,
+                      getValue: this.getValue
+                    }
+                    const result = itemRender(props, item, value);
+                    const itemProps = {
+                      props
+                    }
+                    return (
+                      <view-item {...itemProps}></view-item>
+                    );
+                  })
                 }
-              }
-              return (
-                <div>1111</div>
-              );
-            })
+                </ul>
+              </aside>
+            )
           }
         </div>
       )

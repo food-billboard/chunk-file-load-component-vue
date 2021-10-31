@@ -93,6 +93,7 @@
         return true;
       },
       async onUpload(task) {
+        console.log(task, 1111111)
         if (!isUploaded(task)) {
           const fileTask = task.task;
           let result = [];

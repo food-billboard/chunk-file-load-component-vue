@@ -28,26 +28,28 @@
           {this.$slots.default}
           {
             !!this.showUploadList && value.map((item) => {
-              const result = itemRender(this.$props, item, value);
               const props = {
-                props: {
-                  value: item,
-                  key: item.id,
-                  showUploadList: this.showUploadList,
-                  "on-cancel": this.onCancel,
-                  "on-upload": this.onUpload,
-                  "on-stop": this.onStop,
-                  "on-preview": this.onPreview,
-                  iconRender: this.iconRender,
-                  viewType: this.viewType,
-                  viewStyle: this.viewStyle,
-                  itemRender: result,
-                  getValue: this.getValue
-                }
+                value: item,
+                key: item.id,
+                showUploadList: this.showUploadList,
+                "on-cancel": this.onCancel,
+                "on-upload": this.onUpload,
+                "on-stop": this.onStop,
+                "on-preview": this.onPreview,
+                iconRender: this.iconRender,
+                viewType: this.viewType,
+                viewStyle: this.viewStyle,
+                itemRender: result,
+                getValue: this.getValue,
+                className: this.className
+              }
+              const result = itemRender(props, item, value);
+              const itemProps = {
+                props
               }
               return (
                 <view-item
-                  {...props}
+                  {...itemProps}
                 ></view-item>
               );
             })

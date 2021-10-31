@@ -5,6 +5,7 @@ export function generateBasicIconData(className) {
     props: {
       className: String,
       iconStyle: Object,
+      file: Object
     },
     render() {
       const { className: propsClassName, iconStyle } = this.$props

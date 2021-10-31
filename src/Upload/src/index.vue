@@ -298,6 +298,7 @@
               that.$refs["chunk-file-load-drag"].closeDialog()
               const { resolve, reject } = that.$refs["chunk-file-load-drag"].customValidator(e.target.files)
               that.onDrop(resolve, reject)
+              e.target.value = ""
             },
             focus() {
               that.$refs["chunk-file-load-drag"].focus()

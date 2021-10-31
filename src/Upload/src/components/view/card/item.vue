@@ -1,4 +1,5 @@
 <script>
+  import classnames from 'classnames'
   import Icon from '../icon'
   import ActionModal from './action.vue'
   import Progress from '../progress'
@@ -22,6 +23,7 @@
       viewType: String,
       previewFile: Object,
       viewStyle: Object,
+      className: String,
       getValue: Array 
     },
     data() {
@@ -104,7 +106,7 @@
       }
 
       const node = (
-        <div class={'chunk-upload-card-item'} style={this.viewStyle}>
+        <div class={classnames('chunk-upload-card-item', this.className)} style={this.viewStyle}>
           <el-icon 
             iconRender={this.iconRender} 
             file={this.value} 
@@ -171,7 +173,7 @@
 .chunk-upload-card-item-progress .el-progress {
   width: 100%;
 }
-.chunk-upload-list-progress-status {
+.chunk-upload-card-item-progress .chunk-upload-list-progress-status {
   width: 100%;
   text-indent: 0;
   text-align: center;
