@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import { mount } from '@vue/test-utils'
 import { Upload as ChunkUpload } from 'chunk-file-upload';
-import { Upload } from '../../src';
+import Upload from '@/Upload';
 import {
   exitDataFn,
   uploadFn,
@@ -16,7 +16,7 @@ import {
   DEFAULT_REQUEST
 } from './utils';
 
-describe.skip(`error test`, () => {
+describe(`error test`, () => {
 
   it(`remove file when the file is uploading`, async () => {
     await new Promise(async (resolve, reject) => {
@@ -24,41 +24,48 @@ describe.skip(`error test`, () => {
       let first = true;
 
       const props = {
-        viewType: 'list',
-        "on-change": (value) => {
-          if (first) {
-            expect(value.length).toEqual(1);
-            first = false;
-          } else {
-            expect(value.length).toEqual(0);
-            resolve();
-          }
-        },
-        request: {
-          exitDataFn,
-          uploadFn,
-          completeFn,
-        },
-        immediately: false,
+        propsData: {
+          viewType: 'list',
+          "on-change": (value) => {
+            try {
+              if (first) {
+                expect(value.length).toEqual(1);
+                first = false;
+              } else {
+                expect(value.length).toEqual(0);
+              }
+            }catch(err) {
+              reject(err)
+            }
+          },
+          request: {
+            exitDataFn,
+            uploadFn,
+            completeFn,
+            callback(error) {
+              expect(!!error).toBeTruthy()
+              resolve()
+            }
+          },
+          immediately: false,
+        }
       };
 
       let wrapper = mount(Upload, props);
 
-      await wrapper.find('input').trigger('change', {
-        target: {
-          files: [
-            ChunkUpload.arraybuffer2file(
-              new ArrayBuffer(FILE_SIZE),
-              FILE_NAME,
-              {
-                type: FILE_TYPE,
-              },
-            ),
-          ],
+      wrapper.vm.onDrop([ChunkUpload.arraybuffer2file(
+        new ArrayBuffer(FILE_SIZE),
+        FILE_NAME,
+        {
+          type: FILE_TYPE,
         },
-      });
+      )], [])
+
+      await sleep(100)
 
       await uploadTask(wrapper);
+
+      await sleep(100)
 
       await deleteTask(wrapper);
 

@@ -1,6 +1,3 @@
-import React from 'react';
-import { mount } from 'enzyme';
-import { act } from 'react-dom/test-utils';
 import { Upload as ChunkUpload } from 'chunk-file-upload';
 import { Upload } from '../../src';
 import {

@@ -2,7 +2,7 @@
   import { noop } from 'lodash'
   import Card from './card'
   import List from './list'
-  import { isUploaded, withTry } from '../../utils'
+  import { isUploaded, withTry, sleep } from '../../utils'
   export default {
     props: {
       className: String,
@@ -84,16 +84,15 @@
             );
           }
         }
-        this.onCancel && this.onCancel(task);
-        setTimeout(() => {
-          const prevValue = this.getValue
-          const newValue = this.unCancelValue(task, prevValue)
-          this.setValue(newValue)
-        }, 10);
+        this.onCancel?.(task);
+
+        const prevValue = this.getValue
+        const newValue = this.unCancelValue(task, prevValue)
+        this.setValue(newValue)
+
         return true;
       },
       async onUpload(task) {
-        console.log(task, 1111111)
         if (!isUploaded(task)) {
           const fileTask = task.task;
           let result = [];

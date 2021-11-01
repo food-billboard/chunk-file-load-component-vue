@@ -45,6 +45,9 @@
   },
   "peerDependencies": {},
   "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.16.0",
+    "@babel/plugin-proposal-private-methods": "^7.16.0",
+    "@babel/plugin-transform-runtime": "^7.16.0",
     "@babel/preset-env": "^7.15.6",
     "@storybook/addon-notes": "^5.3.21",
     "@storybook/addon-storysource": "^6.3.11",

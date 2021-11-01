@@ -65,8 +65,8 @@ export const uploadTask = (dom, index = 0, isList = true) => {
   const find = isList
     ? '.chunk-upload-list-item'
     : '.chunk-upload-action-modal';
-  const target = dom.findAllComponents(find);
-  const button = target.at(index).findAllComponents('button');
+  const target = dom.findAll(find);
+  const button = target.at(index).findAll('button');
   button.at(0).trigger('click');
   return button;
 };
@@ -75,7 +75,7 @@ export const stopTask = (dom, isList = true) => {
   const find = isList
     ? '.chunk-upload-list-item button'
     : '.chunk-upload-action-modal button';
-  const target = dom.findAllComponents(find);
+  const target = dom.findAll(find);
   target.at(0).trigger('click');
   return target;
 };
@@ -84,8 +84,8 @@ export const deleteTask = (dom, index = 0, isList = true) => {
   const find = isList
     ? '.chunk-upload-list-item'
     : '.chunk-upload-action-modal';
-  const target = dom.findAllComponents(find);
-  const button = target.at(index).findAllComponents('button');
+  const target = dom.findAll(find);
+  const button = target.at(index).findAll('button');
   button.at(1).trigger('click');
   return button;
 };
@@ -94,8 +94,8 @@ export const previewTask = (dom, index=0, isList=true) => {
   const find = isList
   ? '.chunk-upload-list-item'
   : '.chunk-upload-action-modal';
-  const target = dom.findAllComponents(find);
-  const button = target.at(index).findAllComponents('button');
+  const target = dom.findAll(find);
+  const button = target.at(index).findAll('button');
   button.at(2).trigger('click');
   return button;
 };

@@ -77,3 +77,5 @@ export function withTry(func) {
 export const className = (prefix, ...args) => {
   return `${prefix}-${args.join('-')}`;
 };
+
+export const sleep = (times=500) => new Promise(resolve => setTimeout(resolve, times))
