@@ -104,7 +104,7 @@
             code: ERRORS_MAP.accept
           })
         }
-        //validator 
+        //validator
         if(typeof this.validator === "function") {
           let error = this.validator(file)
           if(error) {

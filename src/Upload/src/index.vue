@@ -33,7 +33,7 @@
         required: false,
         validator: PropsValidator.value 
       },
-      defauleValue: {
+      defaultValue: {
         type: String | Array | Object,
         required: false,
         validator: PropsValidator.defaultValue 
@@ -117,7 +117,7 @@
       multiple: Boolean
     },
     data() {
-      const stateFiles = propsValueFormat(this.defauleValue || this.value || [])
+      const stateFiles = propsValueFormat(this.defaultValue || this.value || [])
       return {
         stateFiles,
       }
@@ -275,6 +275,12 @@
         return this.$refs["previewModalRef"].open({
           value,
         });
+      },
+      onInputFileChange(e) {
+        this.$refs["chunk-file-load-drag"].closeDialog()
+        const { resolve, reject } = this.$refs["chunk-file-load-drag"].customValidator(e.target.files)
+        this.onDrop(resolve, reject)
+        e.target.value = ""
       }
     },
     computed: {
@@ -294,12 +300,7 @@
             accept: this.accept,
           },
           on: {
-            change(e) {
-              that.$refs["chunk-file-load-drag"].closeDialog()
-              const { resolve, reject } = that.$refs["chunk-file-load-drag"].customValidator(e.target.files)
-              that.onDrop(resolve, reject)
-              e.target.value = ""
-            },
+            change: this.onInputFileChange,
             focus() {
               that.$refs["chunk-file-load-drag"].focus()
             },
@@ -316,28 +317,6 @@
           }
         }
       },
-      fileDomList() {
-        const props = {
-          props: {
-            viewStyle: this.viewStyle,
-            className: this.viewClassName,
-            viewType: this.viewType,
-            showUploadList: this.showUploadList,
-            "on-remove": this.onRemove,
-            iconRender: this.iconRender,
-            itemRender: this.itemRender,
-            previewFile: this.previewFile,
-            "on-cancel": this.releasePreviewCache,
-            getValue: this.formatFiles,
-            "on-preview": this.onPreview
-          }
-        }
-        return (
-          <view-list
-            {...props}
-          ></view-list>
-        );
-      }
     },
     render() {
 

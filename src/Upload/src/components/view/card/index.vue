@@ -39,13 +39,16 @@
                 iconRender: this.iconRender,
                 viewType: this.viewType,
                 viewStyle: this.viewStyle,
-                itemRender: result,
+                itemRender: this.itemRender,
                 getValue: this.getValue,
                 className: this.className
               }
               const result = itemRender(props, item, value);
               const itemProps = {
-                props
+                props: {
+                  ...props,
+                  itemRender: result
+                }
               }
               return (
                 <view-item

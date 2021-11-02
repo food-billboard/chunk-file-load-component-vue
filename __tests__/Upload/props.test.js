@@ -1,5 +1,7 @@
 import { Upload as ChunkUpload } from 'chunk-file-upload';
-import { Upload } from '../../src';
+import Vue from 'vue'
+import { mount } from '@vue/test-utils'
+import Upload from '@/Upload';
 import {
   exitDataFn,
   uploadFn,
@@ -76,36 +78,36 @@ const isUploadValidFile = (files, another) => {
   });
 };
 
-describe.skip(`Upload Component test`, () => {
-  describe('defaultValue test', () => {
-    it(`defaultValue set string`, async () => {
+describe(`Upload Component test`, () => {
+  describe.skip('defaultValue test', () => {
+    it(`defaultValue set string`, () => {
       const props = {
-        viewType: 'list',
-        defaultValue: MOCK_COMPLETE_STRING_FILE,
-        request: DEFAULT_REQUEST,
+        propsData: {
+          viewType: 'list',
+          defaultValue: MOCK_COMPLETE_STRING_FILE,
+          request: DEFAULT_REQUEST,
+        }
       };
 
-      const ref = React.createRef();
+      const wrapper = mount(Upload, props);
 
-      mount(<Upload ref={ref} {...props} />);
-
-      const files = ref.current.getFiles(true);
+      const files = wrapper.vm.stateFiles;
       expect(files.length).toEqual(1);
       isValidUrlFile(files);
     });
 
     it(`defaultValue set string[]`, () => {
       const props = {
-        viewType: 'list',
-        defaultValue: [MOCK_COMPLETE_STRING_FILE],
-        request: DEFAULT_REQUEST,
+        propsData: {
+          viewType: 'list',
+          defaultValue: [MOCK_COMPLETE_STRING_FILE],
+          request: DEFAULT_REQUEST,
+        }
       };
 
-      const ref = React.createRef();
+      const wrapper = mount(Upload, props);
 
-      mount(<Upload ref={ref} {...props} />);
-
-      const files = ref.current.getFiles(true);
+      const files = wrapper.vm.stateFiles
       expect(files.length).toEqual(1);
       isValidUrlFile(files);
     });
@@ -115,16 +117,16 @@ describe.skip(`Upload Component test`, () => {
       const testName = MOCK_COMPLETE_OBJECT_FILE.local.value.filename;
 
       const props = {
-        viewType: 'list',
-        defaultValue: [MOCK_COMPLETE_OBJECT_FILE],
-        request: DEFAULT_REQUEST,
+        propsData: {
+          viewType: 'list',
+          defaultValue: [MOCK_COMPLETE_OBJECT_FILE],
+          request: DEFAULT_REQUEST,
+        }
       };
 
-      const ref = React.createRef();
+      const wrapper = mount(Upload, props);
 
-      mount(<Upload ref={ref} {...props} />);
-
-      const files = ref.current.getFiles(true);
+      const files = wrapper.vm.stateFiles
       expect(files.length).toEqual(1);
       isValidUrlFile(files, false, (file) => {
         expect(file.name).toEqual(name);
@@ -133,760 +135,437 @@ describe.skip(`Upload Component test`, () => {
     });
   });
 
-  describe('value test', () => {
+  describe.skip('value test', () => {
     it(`value set string`, async () => {
       await new Promise(async (resolve, reject) => {
         let changeValue = [MOCK_COMPLETE_STRING_FILE];
-        const ref = React.createRef();
+        let wrapper 
 
         const props = {
-          viewType: 'list',
-          onChange: (value) => {
-            const files = ref.current.getFiles(true);
-            expect(files.length).toEqual(1);
-            const [formatCompleteFile] = files;
-            expect(typeof formatCompleteFile).toEqual('object');
-            isValidUrlFile(formatCompleteFile);
-            if (value.length === 2) {
-              expect(value).toBeInstanceOf(Array);
-              expect(value.length).toEqual(2);
-              const [completeFile, uploadFile] = value;
-              isValidUrlFile(completeFile);
-              isUploadValidFile(uploadFile);
-              resolve();
-            }
-          },
-          value: changeValue,
-          request: {
-            exitDataFn,
-            uploadFn,
-            completeFn,
-          },
+          propsData: {
+            viewType: 'list',
+            "on-change": (value) => {
+              const files = wrapper.vm.stateFiles
+              expect(files.length).toEqual(1);
+              const [formatCompleteFile] = files;
+              expect(typeof formatCompleteFile).toEqual('object');
+              isValidUrlFile(formatCompleteFile);
+              if (value.length === 2) {
+                expect(value).toBeInstanceOf(Array);
+                expect(value.length).toEqual(2);
+                const [completeFile, uploadFile] = value;
+                isValidUrlFile(completeFile);
+                isUploadValidFile(uploadFile);
+                resolve();
+              }
+            },
+            value: changeValue,
+            request: {
+              exitDataFn,
+              uploadFn,
+              completeFn,
+            },
+          }
         };
 
-        const wrapper = mount(<Upload ref={ref} {...props} />);
+        wrapper = mount(Upload, props);
 
-        await act(async () => {
-          await sleep(100);
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
+        wrapper.vm.onDrop([
+          ChunkUpload.arraybuffer2file(
+            new ArrayBuffer(FILE_SIZE),
+            FILE_NAME,
+            {
+              type: FILE_TYPE,
             },
-          });
+          ),
+        ], [])
 
-          await sleep(1000);
-        });
       });
     });
 
     it(`value set PartialWrapperFile`, async () => {
       await new Promise(async (resolve, reject) => {
         let changeValue = [MOCK_COMPLETE_OBJECT_FILE];
-        const ref = React.createRef();
+        let wrapper 
 
         const props = {
-          viewType: 'list',
-          onChange: (value) => {
-            const files = ref.current.getFiles(true);
-            expect(files.length).toEqual(1);
-            const [formatCompleteFile] = files;
-            expect(typeof formatCompleteFile).toEqual('object');
-            isValidUrlFile(formatCompleteFile);
-            if (value.length === 2) {
-              expect(value).toBeInstanceOf(Array);
-              expect(value.length).toEqual(2);
-              const [completeFile, uploadFile] = value;
-              isValidUrlFile(completeFile, true);
-              isUploadValidFile(uploadFile);
-              resolve();
-            }
-          },
-          value: changeValue,
-          request: {
-            exitDataFn,
-            uploadFn,
-            completeFn,
-          },
+          propsData: {
+            viewType: 'list',
+            "on-change": (value) => {
+              const files = wrapper.vm.stateFiles
+              expect(files.length).toEqual(1);
+              const [formatCompleteFile] = files;
+              expect(typeof formatCompleteFile).toEqual('object');
+              isValidUrlFile(formatCompleteFile);
+              if (value.length === 2) {
+                expect(value).toBeInstanceOf(Array);
+                expect(value.length).toEqual(2);
+                const [completeFile, uploadFile] = value;
+                isValidUrlFile(completeFile, true);
+                isUploadValidFile(uploadFile);
+                resolve();
+              }
+            },
+            value: changeValue,
+            request: {
+              exitDataFn,
+              uploadFn,
+              completeFn,
+            },
+          }
         };
 
-        const wrapper = mount(<Upload ref={ref} {...props} />);
+        wrapper = mount(Upload, props);
 
-        await act(async () => {
-          await sleep(100);
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
+        wrapper.vm.onDrop([
+          ChunkUpload.arraybuffer2file(
+            new ArrayBuffer(FILE_SIZE),
+            FILE_NAME,
+            {
+              type: FILE_TYPE,
             },
-          });
+          )
+        ], [])
 
-          await sleep(1000);
-        });
       });
     });
   });
 
-  describe('onChange test', () => {
+  describe.skip('onChange test', () => {
     it(`onChange set`, async () => {
       await new Promise(async (resolve, reject) => {
-        const ref = React.createRef();
 
         const props = {
-          viewType: 'list',
-          onChange: (value) => {
-            try {
-              expect(value).toBeInstanceOf(Array);
-              expect(value.length).toEqual(1);
-              isUploadValidFile(value);
-            } catch (err) {
-              reject(err);
-            }
-            resolve();
-          },
-          request: {
-            exitDataFn,
-            uploadFn,
-            completeFn,
-          },
+          propsData: {
+            viewType: 'list',
+            "on-change": (value) => {
+              try {
+                expect(value).toBeInstanceOf(Array);
+                expect(value.length).toEqual(1);
+                isUploadValidFile(value);
+              } catch (err) {
+                reject(err);
+              }
+              resolve();
+            },
+            request: {
+              exitDataFn,
+              uploadFn,
+              completeFn,
+            },
+          }
         };
 
-        const wrapper = mount(<Upload ref={ref} {...props} />);
+        const wrapper = mount(Upload, props);
 
-        await act(async () => {
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
+        wrapper.vm.onDrop([
+          ChunkUpload.arraybuffer2file(
+            new ArrayBuffer(FILE_SIZE),
+            FILE_NAME,
+            {
+              type: FILE_TYPE,
             },
-          });
-
-          await sleep(1000);
-        });
+          )
+        ], [])
       });
     });
   });
 
-  describe('onValidator test', () => {
+  describe.skip('onValidator test', () => {
     it(`onValidator fulfilled test`, async () => {
       await new Promise(async (resolve, reject) => {
         const message = 'message-error';
-        const ref = React.createRef();
 
         const props = {
-          viewType: 'list',
-          onValidator(errorFile, fulFile) {
-            expect(errorFile).toBeInstanceOf(Array);
-            expect(errorFile.length).toEqual(0);
-            expect(fulFile).toBeInstanceOf(Array);
-            expect(fulFile.length).toEqual(1);
-            resolve();
-          },
-          validator: (file) => {
-            const type = file.type;
-            return type.startsWith('image')
-              ? null
-              : {
-                  message,
-                  code: 'file-invalid-type',
-                };
-          },
-          request: {
-            exitDataFn,
-            uploadFn,
-            completeFn,
-          },
+          propsData: {
+            viewType: 'list',
+            "on-validator": function(errorFile, fulFile) {
+              expect(errorFile).toBeInstanceOf(Array);
+              expect(errorFile.length).toEqual(0);
+              expect(fulFile).toBeInstanceOf(Array);
+              expect(fulFile.length).toEqual(1);
+              resolve();
+            },
+            validator: (file) => {
+              const type = file.type;
+              return type.startsWith('image')
+                ? null
+                : {
+                    message,
+                    code: 'file-invalid-type',
+                  };
+            },
+            request: {
+              exitDataFn,
+              uploadFn,
+              completeFn,
+            },
+          }
         };
 
-        const wrapper = mount(<Upload ref={ref} {...props} />);
+        const wrapper = mount(Upload, props);
 
-        await act(async () => {
-          await sleep(100);
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
-            },
-          });
+        wrapper.vm.onInputFileChange({
+          target: {
+            files: [
+              ChunkUpload.arraybuffer2file(
+                new ArrayBuffer(FILE_SIZE),
+                FILE_NAME,
+                {
+                  type: FILE_TYPE,
+                },
+              )
+            ]
+          }
+        })
 
-          await sleep(1000);
-        });
       });
     });
 
     it(`onValidator rejected test`, async () => {
       await new Promise(async (resolve, reject) => {
         const message = 'message-error';
-        const ref = React.createRef();
 
         const props = {
-          viewType: 'list',
-          onValidator(errorFile, fulFile) {
-            expect(errorFile).toBeInstanceOf(Array);
-            expect(errorFile.length).toEqual(1);
-            errorFile.forEach((item) => {
-              expect(typeof item).toEqual('object');
-              expect(item.file).toBeInstanceOf(File);
-              expect(item.errors).toBeInstanceOf(Array);
-              expect(item.errors.length).not.toBe(0);
-              expect(
-                item.errors.some((error) => {
-                  expect(typeof error).toEqual('object');
-                  return (
-                    error.message === message &&
-                    error.code === 'file-invalid-type'
-                  );
-                }),
-              ).toBeTruthy();
-            });
-            expect(fulFile).toBeInstanceOf(Array);
-            expect(fulFile.length).toEqual(0);
-            resolve();
-          },
-          validator: (file) => {
-            const type = file.type;
-            return type.startsWith('video')
-              ? null
-              : {
-                  message,
-                  code: 'file-invalid-type',
-                };
-          },
-          request: {
-            exitDataFn,
-            uploadFn,
-            completeFn,
-          },
+          propsData: {
+            viewType: 'list',
+            "on-validator": function(errorFile, fulFile) {
+              expect(errorFile).toBeInstanceOf(Array);
+              expect(errorFile.length).toEqual(1);
+              errorFile.forEach((item) => {
+                expect(typeof item).toEqual('object');
+                expect(item.file).toBeInstanceOf(File);
+                expect(item.errors).toBeInstanceOf(Array);
+                expect(item.errors.length).not.toBe(0);
+                expect(
+                  item.errors.some((error) => {
+                    expect(typeof error).toEqual('object');
+                    return (
+                      error.message === message &&
+                      error.code === 'file-invalid-type'
+                    );
+                  }),
+                ).toBeTruthy();
+              });
+              expect(fulFile).toBeInstanceOf(Array);
+              expect(fulFile.length).toEqual(0);
+              resolve();
+            },
+            validator: (file) => {
+              const type = file.type;
+              return type.startsWith('video')
+                ? null
+                : {
+                    message,
+                    code: 'file-invalid-type',
+                  };
+            },
+            request: {
+              exitDataFn,
+              uploadFn,
+              completeFn,
+            },
+          }
         };
 
-        const wrapper = mount(<Upload ref={ref} {...props} />);
+        const wrapper = mount(Upload, props);
 
-        await act(async () => {
-          await sleep(100);
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
-            },
-          });
+        wrapper.vm.onInputFileChange({
+          target: {
+            files: [
+              ChunkUpload.arraybuffer2file(
+                new ArrayBuffer(FILE_SIZE),
+                FILE_NAME,
+                {
+                  type: FILE_TYPE,
+                },
+              )
+            ]
+          }
+        })
 
-          await sleep(1000);
-        });
       });
     });
   });
 
-  describe('onRemove test', () => {
+  describe.skip('onRemove test', () => {
     it(`onRemove return false test`, async () => {
       await new Promise(async (resolve, reject) => {
-        const ref = React.createRef();
 
         const props = {
-          viewType: 'list',
-          onRemove() {
-            return false;
-          },
-          request: {
-            exitDataFn,
-            uploadFn,
-            completeFn,
-          },
-          immediately: false,
+          propsData: {
+            viewType: 'list',
+            "on-remove": function() {
+              return false;
+            },
+            request: {
+              exitDataFn,
+              uploadFn,
+              completeFn,
+            },
+            immediately: false,
+          }
         };
 
-        const wrapper = mount(<Upload ref={ref} {...props} />);
+        const wrapper = mount(Upload, props);
 
-        await act(async () => {
-          await sleep(100);
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
-            },
-          });
+        wrapper.vm.onInputFileChange({
+          target: {
+            files: [
+              ChunkUpload.arraybuffer2file(
+                new ArrayBuffer(FILE_SIZE),
+                FILE_NAME,
+                {
+                  type: FILE_TYPE,
+                },
+              ),
+            ],
+          }
+        })
 
-          await sleep(1000);
+        await sleep(1000)
 
-          wrapper.update();
+        uploadTask(wrapper);
+        deleteTask(wrapper);
 
-          uploadTask(wrapper);
-          deleteTask(wrapper);
+        await sleep(100)
 
-          setTimeout(() => {
-            const files = ref.current.getFiles();
-            expect(files.length).toEqual(1);
-            resolve();
-          }, 100);
+        const files = wrapper.vm.stateFiles
+        expect(files.length).toEqual(1);
+        resolve()
 
-          await sleep(1000);
-        });
       });
     });
 
     it(`onRemove and use card viewType test`, async () => {
       await new Promise(async (resolve, reject) => {
-        const ref = React.createRef();
 
         const props = {
-          viewType: 'card',
-          onRemove() {
-            return true;
-          },
-          request: {
-            exitDataFn,
-            uploadFn,
-            completeFn,
-          },
-          immediately: false,
+          propsData: {
+            viewType: 'card',
+            "on-remove": function() {
+              return true;
+            },
+            request: {
+              exitDataFn,
+              uploadFn,
+              completeFn,
+            },
+            immediately: false,
+          }
         };
 
-        let wrapper = mount(<Upload ref={ref} {...props} />);
+        let wrapper = mount(Upload, props);
 
-        await act(async () => {
-          await sleep(100);
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
-            },
-          });
-
-          await sleep(100);
-
-          wrapper = wrapper.update();
-
-          uploadTask(wrapper, 0, false);
-
-          await sleep(100);
-
-          deleteTask(wrapper, 0, false);
-
-          wrapper.update();
-
-          await sleep(100);
-
-          const files = ref.current.getFiles();
-          expect(files.length).toEqual(0);
-
-          await sleep(1500);
-
-          resolve();
+        wrapper.vm.onInputFileChange({
+          target: {
+            files: [
+              ChunkUpload.arraybuffer2file(
+                new ArrayBuffer(FILE_SIZE),
+                FILE_NAME,
+                {
+                  type: FILE_TYPE,
+                },
+              ),
+            ],
+          },
         });
+
+        await sleep(100)
+
+        uploadTask(wrapper, 0, false);
+
+        await sleep(100);
+
+        deleteTask(wrapper, 0, false);
+        
+        await sleep(100);
+
+        const files = wrapper.vm.stateFiles
+        expect(files.length).toEqual(0);
+
+        await sleep(1500);
+
+        resolve();
+
       });
     });
 
     it(`onRemove return true test`, async () => {
       await new Promise(async (resolve, reject) => {
-        const ref = React.createRef();
 
         const props = {
-          viewType: 'list',
-          onRemove() {
-            return true;
-          },
-          request: {
-            exitDataFn,
-            uploadFn,
-            completeFn,
-          },
-          immediately: false,
+          propsData: {
+            viewType: 'list',
+            "on-remove": function() {
+              return true;
+            },
+            request: {
+              exitDataFn,
+              uploadFn,
+              completeFn,
+            },
+            immediately: false,
+          }
         };
 
-        let wrapper = mount(<Upload ref={ref} {...props} />);
+        let wrapper = mount(Upload, props);
 
-        await act(async () => {
-          await sleep(100);
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
-            },
-          });
-
-          await sleep(100);
-
-          wrapper = wrapper.update();
-
-          uploadTask(wrapper);
-
-          await sleep(100);
-
-          deleteTask(wrapper);
-
-          wrapper.update();
-
-          await sleep(100);
-
-          const files = ref.current.getFiles();
-          expect(files.length).toEqual(0);
-
-          await sleep(1500);
-
-          resolve();
+        wrapper.vm.onInputFileChange({
+          target: {
+            files: [
+              ChunkUpload.arraybuffer2file(
+                new ArrayBuffer(FILE_SIZE),
+                FILE_NAME,
+                {
+                  type: FILE_TYPE,
+                },
+              ),
+            ],
+          },
         });
+
+        await sleep(100);
+
+        uploadTask(wrapper);
+
+        await sleep(100);
+
+        deleteTask(wrapper);
+
+        await sleep(100);
+
+        const files = wrapper.vm.stateFiles;
+        expect(files.length).toEqual(0);
+
+        await sleep(1500);
+
+        resolve();
+
       });
     });
 
     it(`onRemove delete unupload task test`, async () => {
       await new Promise(async (resolve, reject) => {
-        const ref = React.createRef();
 
         const props = {
-          viewType: 'list',
-          onRemove() {
-            return true;
-          },
-          request: {
-            exitDataFn,
-            uploadFn,
-            completeFn,
-          },
-          immediately: false,
-        };
-
-        let wrapper = mount(<Upload ref={ref} {...props} />);
-
-        await act(async () => {
-          await sleep(100);
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
+          propsData: {
+            viewType: 'list',
+            "on-remove": function() {
+              return true;
             },
-          });
-
-          await sleep(1000);
-
-          wrapper.update();
-
-          deleteTask(wrapper);
-
-          await sleep(100);
-
-          const files = ref.current.getFiles();
-          expect(files.length).toEqual(0);
-
-          await sleep(1500);
-
-          resolve();
-        });
-      });
-    });
-
-    it(`onRemove return Promise boolean test`, async () => {
-      await new Promise(async (resolve) => {
-        const ref = React.createRef();
-
-        const props = {
-          viewType: 'list',
-          onRemove: async () => {
-            await sleep(100);
-            return true;
-          },
-          request: {
-            exitDataFn,
-            uploadFn,
-            completeFn,
-          },
-          immediately: false,
-        };
-
-        let wrapper = mount(<Upload ref={ref} {...props} />);
-
-        await act(async () => {
-          await sleep(100);
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
+            request: {
+              exitDataFn,
+              uploadFn,
+              completeFn,
             },
-          });
-
-          await sleep(1000);
-
-          wrapper = wrapper.update();
-
-          uploadTask(wrapper);
-
-          deleteTask(wrapper);
-
-          wrapper.update();
-
-          await sleep(100);
-
-          expect(ref.current.getFiles().length).toEqual(1);
-
-          await sleep(1500);
-
-          expect(ref.current.getFiles().length).toEqual(0);
-
-          await sleep(100);
-
-          resolve();
-        });
-      });
-    });
-
-    it(`onRemove return unValid value test`, async () => {
-      await new Promise(async (resolve) => {
-        const ref = React.createRef();
-
-        const props = {
-          viewType: 'list',
-          onRemove: async () => {
-            await sleep(100);
-            return null;
-          },
-          request: {
-            exitDataFn,
-            uploadFn,
-            completeFn,
-          },
-          immediately: false,
-        };
-
-        let wrapper = mount(<Upload ref={ref} {...props} />);
-
-        await act(async () => {
-          await sleep(100);
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
-            },
-          });
-
-          await sleep(1000);
-
-          wrapper = wrapper.update();
-
-          uploadTask(wrapper);
-
-          deleteTask(wrapper);
-
-          wrapper.update();
-
-          await sleep(100);
-
-          expect(ref.current.getFiles().length).toEqual(1);
-
-          await sleep(1500);
-
-          expect(ref.current.getFiles().length).toEqual(0);
-
-          await sleep(100);
-
-          resolve();
-        });
-      });
-    });
-
-    it(`onRemove return reject test`, async () => {
-      await new Promise(async (resolve) => {
-        const ref = React.createRef();
-
-        const props = {
-          viewType: 'list',
-          onRemove: async () => {
-            await sleep(100);
-            return Promise.reject('test error');
-          },
-          request: {
-            exitDataFn,
-            uploadFn,
-            completeFn,
-          },
-          immediately: false,
-        };
-
-        let wrapper = mount(<Upload ref={ref} {...props} />);
-
-        await act(async () => {
-          await sleep(100);
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
-            },
-          });
-
-          await sleep(1000);
-
-          wrapper = wrapper.update();
-
-          uploadTask(wrapper);
-
-          deleteTask(wrapper);
-
-          wrapper.update();
-
-          await sleep(100);
-
-          expect(ref.current.getFiles().length).toEqual(1);
-
-          await sleep(1500);
-
-          expect(ref.current.getFiles().length).toEqual(1);
-
-          await sleep(100);
-
-          resolve();
-        });
-      });
-    });
-  });
-
-  describe('itemRender test', () => {
-    it(`itemRender return newElement test`, async () => {
-      const defineItemNodeClass = 'defineItemNodeClass';
-
-      const ref = React.createRef();
-      let removeDone = false;
-      let previewDone = false;
-      let readIndex = 0;
-      let uploadIndex = 0;
-
-      const props = {
-        viewType: 'list',
-        immediately: false,
-        onRemove() {
-          removeDone = true;
-          return false;
-        },
-        onPreviewFile() {
-          previewDone = true;
-          return true;
-        },
-        itemRender: (originNode, file, fileList, action, info) => {
-          const { preview, upload, cancel, stop } = action;
-          const { complete, status, total } = info;
-          expect(originNode).toBeDefined();
-          expect(typeof file).toEqual('object');
-          expect(Array.isArray(fileList)).toBeTruthy();
-          expect(fileList.length).toEqual(1);
-          expect(typeof preview).toEqual('function');
-          expect(typeof upload).toEqual('function');
-          expect(typeof cancel).toEqual('function');
-          expect(typeof stop).toEqual('function');
-          expect(file.task.status).toEqual(status);
-          if (file.task.status === 2) {
-            expect(total).toEqual(FILE_SIZE);
-            expect(complete).toEqual(readIndex * file.task.config.chunkSize);
-            readIndex++;
-          } else if (file.task.status === 3) {
-            expect(total).toEqual(
-              Math.ceil(FILE_SIZE / file.task.config.chunkSize),
-            );
-            expect(complete).toEqual(uploadIndex);
-            uploadIndex++;
+            immediately: false,
           }
-          return (
-            <div className={defineItemNodeClass}>
-              <span onClick={preview} className="item-render-preview">
-                预览
-              </span>
-              <span onClick={upload} className="item-render-upload">
-                上传
-              </span>
-              <span onClick={cancel} className="item-render-cancel">
-                取消
-              </span>
-              <span onClick={stop} className="item-render-stop">
-                停止
-              </span>
-            </div>
-          );
-        },
-      };
+        };
 
-      const wrapper = mount(<Upload ref={ref} {...props} />);
+        let wrapper = mount(Upload, props);
 
-      await act(async () => {
-        wrapper.find('input').simulate('change', {
+        wrapper.vm.onInputFileChange({
           target: {
             files: [
               ChunkUpload.arraybuffer2file(
@@ -902,51 +581,317 @@ describe.skip(`Upload Component test`, () => {
 
         await sleep(1000);
 
-        wrapper.update();
+        deleteTask(wrapper);
 
-        expect(wrapper.exists(`.${defineItemNodeClass}`)).toBeTruthy();
-      });
+        await sleep(100);
 
-      await act(async () => {
-        //上传
-        wrapper.find('.item-render-upload').simulate('click');
+        const files = wrapper.vm.stateFiles
+        expect(files.length).toEqual(0);
 
-        const [file] = ref.current.getFiles();
-        expect(file.task.status > 0).toBeTruthy();
+        await sleep(1500);
 
-        //暂停
-        wrapper.find('.item-render-stop').simulate('click');
-        expect(file.task.status == -1).toBeTruthy();
+        resolve();
 
-        //取消
-        wrapper.find('.item-render-cancel').simulate('click');
-        expect(removeDone).toBeTruthy();
-
-        //预览
-        wrapper.find('.item-render-preview').simulate('click');
-        expect(previewDone).toBeTruthy();
       });
     });
 
-    it(`itemRender return originElement test`, () => {
-      const changeValue = [MOCK_COMPLETE_STRING_FILE];
+    it(`onRemove return Promise boolean test`, async () => {
+      await new Promise(async (resolve) => {
 
-      const props = {
-        viewType: 'list',
-        value: changeValue,
-        immediately: false,
-        itemRender: (originNode) => {
-          return originNode;
-        },
-      };
+        const props = {
+          propsData: {
+            viewType: 'list',
+            "on-remove": async () => {
+              await sleep(100);
+              return true;
+            },
+            request: {
+              exitDataFn,
+              uploadFn,
+              completeFn,
+            },
+            immediately: false,
+          }
+        };
 
-      const wrapper = mount(<Upload {...props} />);
+        let wrapper = mount(Upload, props);
 
-      expect(wrapper.exists(`.chunk-upload-list-item`)).toBeTruthy();
+        wrapper.vm.onInputFileChange({
+          target: {
+            files: [
+              ChunkUpload.arraybuffer2file(
+                new ArrayBuffer(FILE_SIZE),
+                FILE_NAME,
+                {
+                  type: FILE_TYPE,
+                },
+              ),
+            ],
+          },
+        });
+
+        await sleep(1000);
+
+        uploadTask(wrapper);
+
+        deleteTask(wrapper);
+
+        await sleep(50);
+
+        expect(wrapper.vm.stateFiles.length).toEqual(1);
+
+        await sleep(1500);
+
+        expect(wrapper.vm.stateFiles.length).toEqual(0);
+
+        await sleep(100);
+
+        resolve();
+
+      });
+    });
+
+    it(`onRemove return unValid value test`, async () => {
+      await new Promise(async (resolve) => {
+
+        const props = {
+          propsData: {
+            viewType: 'list',
+            "on-remove": async () => {
+              await sleep(100);
+              return null;
+            },
+            request: {
+              exitDataFn,
+              uploadFn,
+              completeFn,
+            },
+            immediately: false,
+          }
+        };
+
+        let wrapper = mount(Upload, props);
+
+        wrapper.vm.onInputFileChange({
+          target: {
+            files: [
+              ChunkUpload.arraybuffer2file(
+                new ArrayBuffer(FILE_SIZE),
+                FILE_NAME,
+                {
+                  type: FILE_TYPE,
+                },
+              ),
+            ],
+          },
+        });
+
+        await sleep(1000);
+
+        uploadTask(wrapper);
+
+        deleteTask(wrapper);
+
+        await sleep(50);
+
+        expect(wrapper.vm.stateFiles.length).toEqual(1);
+
+        await sleep(1500);
+
+        expect(wrapper.vm.stateFiles.length).toEqual(0);
+
+        await sleep(100);
+
+        resolve();
+
+
+      });
+    });
+
+    it(`onRemove return reject test`, async () => {
+      await new Promise(async (resolve) => {
+
+        const props = {
+          propsData: {
+            viewType: 'list',
+            "on-remove": async () => {
+              await sleep(100);
+              return Promise.reject('test error');
+            },
+            request: {
+              exitDataFn,
+              uploadFn,
+              completeFn,
+            },
+            immediately: false,
+          }
+        };
+
+        let wrapper = mount(Upload, props);
+
+        wrapper.vm.onInputFileChange({
+          target: {
+            files: [
+              ChunkUpload.arraybuffer2file(
+                new ArrayBuffer(FILE_SIZE),
+                FILE_NAME,
+                {
+                  type: FILE_TYPE,
+                },
+              ),
+            ],
+          },
+        });
+
+        await sleep(1000);
+
+        uploadTask(wrapper);
+
+        deleteTask(wrapper);
+
+        await sleep(100);
+
+        expect(wrapper.vm.stateFiles.length).toEqual(1);
+
+        await sleep(1500);
+
+        expect(wrapper.vm.stateFiles.length).toEqual(1);
+
+        await sleep(100);
+
+        resolve();
+
+      });
     });
   });
 
-  describe('showUploadList test', () => {
+  describe('itemRender test', () => {
+    it(`itemRender return newElement test`, async () => {
+      const defineItemNodeClass = 'defineItemNodeClass';
+
+      let removeDone = false;
+      let previewDone = false;
+      let readIndex = 0;
+      let uploadIndex = 0;
+
+      const props = {
+        propsData: {
+          viewType: 'list',
+          immediately: false,
+          "on-remove": function() {
+            removeDone = true;
+            return false;
+          },
+          "on-preview-file": function() {
+            previewDone = true;
+            return true;
+          },
+          itemRender: (originNode, file, fileList, action, info) => {
+            const { preview, upload, cancel, stop } = action;
+            const { complete, status, total } = info;
+            expect(originNode).toBeDefined();
+            expect(typeof file).toEqual('object');
+            expect(Array.isArray(fileList)).toBeTruthy();
+            expect(fileList.length).toEqual(1);
+            expect(typeof preview).toEqual('function');
+            expect(typeof upload).toEqual('function');
+            expect(typeof cancel).toEqual('function');
+            expect(typeof stop).toEqual('function');
+            expect(file.task.status).toEqual(status);
+            if (file.task.status === 2) {
+              expect(total).toEqual(FILE_SIZE);
+              expect(complete).toEqual(readIndex * file.task.config.chunkSize);
+              readIndex++;
+            } else if (file.task.status === 3) {
+              expect(total).toEqual(
+                Math.ceil(FILE_SIZE / file.task.config.chunkSize),
+              );
+              expect(complete).toEqual(uploadIndex);
+              uploadIndex++;
+            }
+            return (
+              <div class={defineItemNodeClass}>
+                <span onClick={preview} class="item-render-preview">
+                  预览
+                </span>
+                <span onClick={upload} class="item-render-upload">
+                  上传
+                </span>
+                <span onClick={cancel} class="item-render-cancel">
+                  取消
+                </span>
+                <span onClick={stop} class="item-render-stop">
+                  停止
+                </span>
+              </div>
+            );
+          },
+        }
+      };
+
+      const wrapper = mount(Upload, props);
+
+      wrapper.vm.onInputFileChange({
+        target: {
+          files: [
+            ChunkUpload.arraybuffer2file(
+              new ArrayBuffer(FILE_SIZE),
+              FILE_NAME,
+              {
+                type: FILE_TYPE,
+              },
+            ),
+          ],
+        },
+      });
+
+      await sleep(1000);
+
+      console.log(wrapper.html())
+
+      expect(wrapper.find(`.${defineItemNodeClass}`).exists()).toBeTruthy();
+
+      //上传
+      wrapper.find('.item-render-upload').trigger('click');
+
+      const [file] = wrapper.vm.stateFiles
+      expect(file.task.status > 0).toBeTruthy();
+
+      //暂停
+      wrapper.find('.item-render-stop').trigger('click');
+      expect(file.task.status == -1).toBeTruthy();
+
+      //取消
+      wrapper.find('.item-render-cancel').trigger('click');
+      expect(removeDone).toBeTruthy();
+
+      //预览
+      wrapper.find('.item-render-preview').trigger('click');
+      expect(previewDone).toBeTruthy();
+
+    });
+
+    it.skip(`itemRender return originElement test`, () => {
+      const changeValue = [MOCK_COMPLETE_STRING_FILE];
+
+      const props = {
+        propsData: {
+          viewType: 'list',
+          value: changeValue,
+          immediately: false,
+          itemRender: (originNode) => {
+            return originNode;
+          },
+        }
+      };
+
+      const wrapper = mount(Upload, props);
+
+      expect(wrapper.find(`.chunk-upload-list-item`).exists()).toBeTruthy();
+    });
+  });
+
+  describe.skip('showUploadList test', () => {
     it(`showUploadList return false`, (done) => {
       const changeValue = [MOCK_COMPLETE_STRING_FILE];
 
@@ -1029,7 +974,7 @@ describe.skip(`Upload Component test`, () => {
         value: changeValue,
         immediately: false,
         showUploadList: {
-          previewIcon: <span className={testPreviewIconClass}></span>,
+          previewIcon: <span class={testPreviewIconClass}></span>,
         },
       };
 
@@ -1057,7 +1002,7 @@ describe.skip(`Upload Component test`, () => {
         showUploadList: {
           previewIcon: (file) => {
             expect(typeof file).toBeDefined();
-            return <span className={testPreviewIconClass}></span>;
+            return <span class={testPreviewIconClass}></span>;
           },
         },
       };
@@ -1109,7 +1054,7 @@ describe.skip(`Upload Component test`, () => {
         value: changeValue,
         immediately: false,
         showUploadList: {
-          uploadIcon: <span className={testPreviewIconClass}></span>,
+          uploadIcon: <span class={testPreviewIconClass}></span>,
         },
       };
 
@@ -1137,7 +1082,7 @@ describe.skip(`Upload Component test`, () => {
         showUploadList: {
           uploadIcon: (file) => {
             expect(typeof file).toBeDefined();
-            return <span className={testPreviewIconClass}></span>;
+            return <span class={testPreviewIconClass}></span>;
           },
         },
       };
@@ -1189,7 +1134,7 @@ describe.skip(`Upload Component test`, () => {
         value: changeValue,
         immediately: false,
         showUploadList: {
-          removeIcon: <span className={testPreviewIconClass}></span>,
+          removeIcon: <span class={testPreviewIconClass}></span>,
         },
       };
 
@@ -1217,7 +1162,7 @@ describe.skip(`Upload Component test`, () => {
         showUploadList: {
           removeIcon: (file) => {
             expect(typeof file).toBeDefined();
-            return <span className={testPreviewIconClass}></span>;
+            return <span class={testPreviewIconClass}></span>;
           },
         },
       };
@@ -1248,7 +1193,7 @@ describe.skip(`Upload Component test`, () => {
             completeFn,
           },
           showUploadList: {
-            uploadIcon: <span className={testPreviewIconClass}></span>,
+            uploadIcon: <span class={testPreviewIconClass}></span>,
           },
           immediately: false,
         };
@@ -1307,7 +1252,7 @@ describe.skip(`Upload Component test`, () => {
           showUploadList: {
             uploadIcon: (file) => {
               expect(file).toBeDefined();
-              return <span className={testPreviewIconClass}></span>;
+              return <span class={testPreviewIconClass}></span>;
             },
           },
           immediately: false,
@@ -1353,7 +1298,7 @@ describe.skip(`Upload Component test`, () => {
     });
   });
 
-  describe('previewFile test', () => {
+  describe.skip('previewFile test', () => {
     it(`previewFile return false that use the default preview`, async () => {
       const props = {
         viewType: 'list',
@@ -1468,7 +1413,7 @@ describe.skip(`Upload Component test`, () => {
           await sleep(100);
           expect(file).toBeDefined();
           expect(viewType).toEqual('list');
-          return <span className={defineItemNodeClass}></span>;
+          return <span class={defineItemNodeClass}></span>;
         },
       };
 
@@ -1505,7 +1450,7 @@ describe.skip(`Upload Component test`, () => {
     });
   });
 
-  describe('onPreviewFile test', () => {
+  describe.skip('onPreviewFile test', () => {
     it(`onPreviewFile return false and that not show the preview`, async () => {
       let previewDone = false;
       let previewFileDone = false;
@@ -1570,7 +1515,7 @@ describe.skip(`Upload Component test`, () => {
           await sleep(100);
           expect(file).toBeDefined();
           expect(viewType).toEqual('list');
-          return <span className={defineItemNodeClass}></span>;
+          return <span class={defineItemNodeClass}></span>;
         },
       };
 
@@ -1609,7 +1554,7 @@ describe.skip(`Upload Component test`, () => {
     
   });
 
-  describe('containerRender test', () => {
+  describe.skip('containerRender test', () => {
     it(`containerRender return list viewType container`, async () => {
       const testClassName = 'testClassName-container';
 
@@ -1637,7 +1582,7 @@ describe.skip(`Upload Component test`, () => {
           expect(typeof isLimit).toEqual('boolean');
           expect(typeof locale).toEqual('object');
           expect(locale.container).toEqual('你好');
-          return <span className={testClassName}>hello</span>;
+          return <span class={testClassName}>hello</span>;
         },
       };
 
@@ -1671,7 +1616,7 @@ describe.skip(`Upload Component test`, () => {
     });
   });
 
-  describe('immediately test', () => {
+  describe.skip('immediately test', () => {
     it(`immediately set true will upload immediately`, async () => {
       const ref = React.createRef();
 
@@ -1749,7 +1694,7 @@ describe.skip(`Upload Component test`, () => {
     });
   });
 
-  describe('lifecycle test', () => {
+  describe.skip('lifecycle test', () => {
     it(`normal lifecycle test`, async () => {
       await new Promise(async (resolve, reject) => {
         const ref = React.createRef();
@@ -2120,7 +2065,7 @@ describe.skip(`Upload Component test`, () => {
     });
   });
 
-  describe('accept test', () => {
+  describe.skip('accept test', () => {
     it(`accept video set test`, (done) => {
       const props = {
         viewType: 'list',
@@ -2155,7 +2100,7 @@ describe.skip(`Upload Component test`, () => {
     });
   });
 
-  describe('minSize test', () => {
+  describe.skip('minSize test', () => {
     it(`set minSize limit the fileSize`, (done) => {
       const props = {
         viewType: 'list',
@@ -2190,7 +2135,7 @@ describe.skip(`Upload Component test`, () => {
     });
   });
 
-  describe('maxSize test', () => {
+  describe.skip('maxSize test', () => {
     it(`set maxSize limit the fileSize`, (done) => {
       const props = {
         viewType: 'list',
@@ -2225,7 +2170,7 @@ describe.skip(`Upload Component test`, () => {
     });
   });
 
-  describe('maxFiles test', () => {
+  describe.skip('maxFiles test', () => {
     it(`set maxFiles limit the file length`, (done) => {
       const props = {
         viewType: 'list',
@@ -2349,7 +2294,7 @@ describe.skip(`Upload Component test`, () => {
     });
   });
 
-  describe('limit test', () => {
+  describe.skip('limit test', () => {
     it(`set limit the file length`, () => {
       const props = {
         viewType: 'list',
@@ -2404,7 +2349,7 @@ describe.skip(`Upload Component test`, () => {
     });
   });
 
-  describe('disabled test', () => {
+  describe.skip('disabled test', () => {
     it(`set disabled to disable click upload`, async () => {
       const props = {
         viewType: 'list',
@@ -2470,7 +2415,7 @@ describe.skip(`Upload Component test`, () => {
     });
   });
 
-  describe('multiple test', () => {
+  describe.skip('multiple test', () => {
     it(`can select multiple file`, (done) => {
       const props = {
         viewType: 'list',
@@ -2509,7 +2454,7 @@ describe.skip(`Upload Component test`, () => {
     });
   });
 
-  describe('locale test', () => {
+  describe.skip('locale test', () => {
     const valid = (value, wrapper, find) => {
       const wrapperProgress = wrapper.find(find);
       wrapperProgress.update();
@@ -2910,7 +2855,7 @@ describe.skip(`Upload Component test`, () => {
     });
   });
 
-  describe('onError test', () => {
+  describe.skip('onError test', () => {
     it('upload error deal the onError', async () => {
       await new Promise(async (resolve, reject) => {
         const ref = React.createRef();
@@ -2969,7 +2914,7 @@ describe.skip(`Upload Component test`, () => {
     });
   });
 
-  describe('viewStyle test', () => {
+  describe.skip('viewStyle test', () => {
     it(`viewStyle test`, (done) => {
       let changeValue = [MOCK_COMPLETE_STRING_FILE];
       const testStyle = {
@@ -3001,7 +2946,7 @@ describe.skip(`Upload Component test`, () => {
     });
   });
 
-  describe('viewClassName test', () => {
+  describe.skip('viewClassName test', () => {
     it(`viewClassName test`, (done) => {
       let changeValue = [MOCK_COMPLETE_STRING_FILE];
       const testClassName = 'testClassName';
@@ -3023,7 +2968,7 @@ describe.skip(`Upload Component test`, () => {
     });
   });
 
-  describe('viewType test', () => {
+  describe.skip('viewType test', () => {
     it(`set list viewType test`, (done) => {
       let changeValue = [MOCK_COMPLETE_STRING_FILE];
 
@@ -3072,7 +3017,7 @@ describe.skip(`Upload Component test`, () => {
     });
   });
 
-  describe('iconRender test', () => {
+  describe.skip('iconRender test', () => {
     it(`iconRender return newElement test`, (done) => {
       let changeValue = [MOCK_COMPLETE_STRING_FILE];
       const defineIconNodeClass = 'defineIconNodeClass';
@@ -3085,7 +3030,7 @@ describe.skip(`Upload Component test`, () => {
           expect(file).toBeDefined();
           expect(viewType).toEqual('list');
           expect(originNode).toBeDefined();
-          return <span className={defineIconNodeClass}></span>;
+          return <span class={defineIconNodeClass}></span>;
         },
       };
 

@@ -1,5 +1,5 @@
 import { Upload as ChunkUpload } from 'chunk-file-upload';
-import { Upload } from '../../src';
+import Upload from '@/Upload';
 import {
   exitDataFn,
   uploadFn,

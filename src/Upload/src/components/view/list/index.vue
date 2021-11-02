@@ -41,12 +41,15 @@
                       "on-preview": this.onPreview,
                       iconRender: this.iconRender,
                       viewType: this.viewType,
-                      itemRender: result,
+                      itemRender: this.itemRender,
                       getValue: this.getValue
                     }
                     const result = itemRender(props, item, value);
                     const itemProps = {
-                      props
+                      props: {
+                        ...props,
+                        itemRender: result
+                      }
                     }
                     return (
                       <view-item {...itemProps}></view-item>

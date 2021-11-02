@@ -1,5 +1,9 @@
 function itemRender(props, file, files) {
-  const { itemRender, onCancel, onStop, onUpload, onPreview } = props
+  const { itemRender } = props
+  const onPreview = props["on-preview"]
+  const onUpload = props["on-upload"]
+  const onStop = props["on-stop"]
+  const onCancel = props["on-cancel"]
   if (!itemRender) return false;
   return function (
     node,
