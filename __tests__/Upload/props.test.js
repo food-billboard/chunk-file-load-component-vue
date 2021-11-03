@@ -1687,7 +1687,7 @@ describe(`Upload Component test`, () => {
     
   });
 
-  describe('containerRender test', () => {
+  describe.skip('containerRender test', () => {
     it(`containerRender return list viewType container`, async () => {
       const testClassName = 'testClassName-container';
 
@@ -1704,23 +1704,24 @@ describe(`Upload Component test`, () => {
               locale: {
                 container: '你好',
               },
-              containerRender: ({
-                isDragAccept,
-                isDragActive,
-                isDragReject,
-                isFocused,
-                isFileDialogActive,
-                isLimit,
-                locale,
-              }) => {
-                // expect(typeof isDragAccept).toEqual('boolean');
-                // expect(typeof isDragActive).toEqual('boolean');
-                // expect(typeof isDragReject).toEqual('boolean');
-                // expect(typeof isFocused).toEqual('boolean');
-                // expect(typeof isFileDialogActive).toEqual('boolean');
-                // expect(typeof isLimit).toEqual('boolean');
-                // expect(typeof locale).toEqual('object');
-                // expect(locale.container).toEqual('你好');
+              containerRender: (params) => {
+                const {
+                  isDragAccept,
+                  isDragActive,
+                  isDragReject,
+                  isFocused,
+                  isFileDialogActive,
+                  isLimit,
+                  locale,
+                } = params 
+                expect(typeof isDragAccept).toEqual('boolean');
+                expect(typeof isDragActive).toEqual('boolean');
+                expect(typeof isDragReject).toEqual('boolean');
+                expect(typeof isFocused).toEqual('boolean');
+                expect(typeof isFileDialogActive).toEqual('boolean');
+                expect(typeof isLimit).toEqual('boolean');
+                expect(typeof locale).toEqual('object');
+                expect(locale.container).toEqual('你好');
                 return <span class={testClassName}>hello</span>;
               },
             }
@@ -1761,86 +1762,77 @@ describe(`Upload Component test`, () => {
 
   describe.skip('immediately test', () => {
     it(`immediately set true will upload immediately`, async () => {
-      const ref = React.createRef();
 
       const props = {
-        viewType: 'list',
-        immediately: true,
-        request: DEFAULT_REQUEST,
+        propsData: {
+          viewType: 'list',
+          immediately: true,
+          request: DEFAULT_REQUEST,
+        }
       };
 
-      const wrapper = mount(<Upload ref={ref} {...props} />);
+      const wrapper = mount(Upload, props);
 
-      await act(async () => {
-        wrapper.find('input').simulate('change', {
-          target: {
-            files: [
-              ChunkUpload.arraybuffer2file(
-                new ArrayBuffer(FILE_SIZE),
-                FILE_NAME,
-                {
-                  type: FILE_TYPE,
-                },
-              ),
-            ],
-          },
-        });
-
-        await sleep(1000);
-
-        wrapper.update();
-
-        const files = ref.current.getFiles();
-        expect(files.length).toEqual(1);
-        expect(files[0].getStatus() != 0).toBeTruthy();
-
-        wrapper.unmount();
+      wrapper.vm.onInputFileChange({
+        target: {
+          files: [
+            ChunkUpload.arraybuffer2file(
+              new ArrayBuffer(FILE_SIZE),
+              FILE_NAME,
+              {
+                type: FILE_TYPE,
+              },
+            ),
+          ],
+        },
       });
+
+      await sleep(1000);
+
+      const files = wrapper.vm.stateFiles;
+      expect(files.length).toEqual(1);
+      expect(files[0].getStatus() != 0).toBeTruthy();
+
     });
 
     it(`immediately set false need click button to upload`, async () => {
-      const ref = React.createRef();
 
       const props = {
-        viewType: 'list',
-        immediately: false,
-        request: DEFAULT_REQUEST,
+        propsData: {
+          viewType: 'list',
+          immediately: false,
+          request: DEFAULT_REQUEST,
+        }
       };
 
-      const wrapper = mount(<Upload ref={ref} {...props} />);
+      const wrapper = mount(Upload, props);
 
-      await act(async () => {
-        wrapper.find('input').simulate('change', {
-          target: {
-            files: [
-              ChunkUpload.arraybuffer2file(
-                new ArrayBuffer(FILE_SIZE),
-                FILE_NAME,
-                {
-                  type: FILE_TYPE,
-                },
-              ),
-            ],
-          },
-        });
-
-        await sleep(1000);
-
-        wrapper.update();
-
-        const files = ref.current.getFiles();
-        expect(files.length).toEqual(1);
-        expect(files[0].getStatus() == 0).toBeTruthy();
-
-        wrapper.unmount();
+      wrapper.vm.onInputFileChange({
+        target: {
+          files: [
+            ChunkUpload.arraybuffer2file(
+              new ArrayBuffer(FILE_SIZE),
+              FILE_NAME,
+              {
+                type: FILE_TYPE,
+              },
+            ),
+          ],
+        },
       });
+
+      await sleep(1000);
+
+      const files = wrapper.vm.stateFiles;
+      expect(files.length).toEqual(1);
+      expect(files[0].getStatus() == 0).toBeTruthy();
+
     });
   });
 
   describe.skip('lifecycle test', () => {
     it(`normal lifecycle test`, async () => {
       await new Promise(async (resolve, reject) => {
-        const ref = React.createRef();
 
         const lifecycle = {
           beforeRead: 0,
@@ -1853,81 +1845,79 @@ describe(`Upload Component test`, () => {
         };
 
         const props = {
-          viewType: 'list',
-          immediately: true,
-          request: {
-            ...DEFAULT_REQUEST,
-            callback: (error, value) => {
-              let realError = error;
-              try {
-                expect(
-                  Object.values(lifecycle).every((item) => !!item),
-                ).toBeTruthy();
-              } catch (err) {
-                realError = err;
-              }
-              if (realError) {
-                reject(error);
-              } else {
-                resolve();
-              }
+          propsData: {
+            viewType: 'list',
+            immediately: true,
+            request: {
+              ...DEFAULT_REQUEST,
+              callback: (error, value) => {
+                let realError = error;
+                try {
+                  expect(
+                    Object.values(lifecycle).every((item) => !!item),
+                  ).toBeTruthy();
+                } catch (err) {
+                  realError = err;
+                }
+                if (realError) {
+                  reject(error);
+                } else {
+                  resolve();
+                }
+              },
             },
-          },
-          lifecycle: {
-            beforeRead() {
-              lifecycle.beforeRead++;
+            lifecycle: {
+              beforeRead() {
+                lifecycle.beforeRead++;
+              },
+              reading() {
+                lifecycle.reading++;
+              },
+              beforeCheck() {
+                lifecycle.beforeCheck++;
+              },
+              afterCheck() {
+                lifecycle.afterCheck++;
+              },
+              uploading() {
+                lifecycle.uploading++;
+              },
+              beforeComplete() {
+                lifecycle.beforeComplete++;
+              },
+              afterComplete() {
+                lifecycle.afterComplete++;
+              },
             },
-            reading() {
-              lifecycle.reading++;
-            },
-            beforeCheck() {
-              lifecycle.beforeCheck++;
-            },
-            afterCheck() {
-              lifecycle.afterCheck++;
-            },
-            uploading() {
-              lifecycle.uploading++;
-            },
-            beforeComplete() {
-              lifecycle.beforeComplete++;
-            },
-            afterComplete() {
-              lifecycle.afterComplete++;
-            },
-          },
+          }
         };
 
-        const wrapper = mount(<Upload ref={ref} {...props} />);
+        const wrapper = mount(Upload, props);
 
-        await act(async () => {
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
-            },
-          });
-
-          await sleep(1000);
-
-          wrapper.update();
-
-          const files = ref.current.getFiles();
-          expect(files.length).toEqual(1);
+        wrapper.vm.onInputFileChange({
+          target: {
+            files: [
+              ChunkUpload.arraybuffer2file(
+                new ArrayBuffer(FILE_SIZE),
+                FILE_NAME,
+                {
+                  type: FILE_TYPE,
+                },
+              ),
+            ],
+          },
         });
+
+        await sleep(1000);
+
+        const files = wrapper.vm.stateFiles
+        expect(files.length).toEqual(1);
+
       });
     });
 
     it(`rejected lifecycle test`, async () => {
       await new Promise(async (resolve, reject) => {
-        const ref = React.createRef();
 
         const lifecycle = {
           beforeRead: 0,
@@ -1940,83 +1930,81 @@ describe(`Upload Component test`, () => {
         };
 
         const props = {
-          viewType: 'list',
-          immediately: true,
-          request: {
-            ...DEFAULT_REQUEST,
-            completeFn: () => {
-              throw new Error();
+          propsData: {
+            viewType: 'list',
+            immediately: true,
+            request: {
+              ...DEFAULT_REQUEST,
+              completeFn: () => {
+                throw new Error();
+              },
+              callback: (error) => {
+                try {
+                  const { afterComplete, ...nextLifecycle } = lifecycle;
+                  expect(!!error).toBeTruthy();
+                  expect(
+                    Object.values(nextLifecycle).every((item) => !!item),
+                  ).toBeTruthy();
+                  expect(afterComplete).toEqual(0);
+                } catch (err) {
+                  reject(err);
+                }
+                resolve();
+              },
             },
-            callback: (error) => {
-              try {
-                const { afterComplete, ...nextLifecycle } = lifecycle;
-                expect(!!error).toBeTruthy();
-                expect(
-                  Object.values(nextLifecycle).every((item) => !!item),
-                ).toBeTruthy();
-                expect(afterComplete).toEqual(0);
-              } catch (err) {
-                reject(err);
-              }
-              resolve();
+            lifecycle: {
+              beforeRead() {
+                lifecycle.beforeRead++;
+              },
+              reading() {
+                lifecycle.reading++;
+              },
+              beforeCheck() {
+                lifecycle.beforeCheck++;
+              },
+              afterCheck() {
+                lifecycle.afterCheck++;
+              },
+              uploading() {
+                lifecycle.uploading++;
+              },
+              beforeComplete() {
+                lifecycle.beforeComplete++;
+              },
+              afterComplete() {
+                lifecycle.afterComplete++;
+              },
             },
-          },
-          lifecycle: {
-            beforeRead() {
-              lifecycle.beforeRead++;
-            },
-            reading() {
-              lifecycle.reading++;
-            },
-            beforeCheck() {
-              lifecycle.beforeCheck++;
-            },
-            afterCheck() {
-              lifecycle.afterCheck++;
-            },
-            uploading() {
-              lifecycle.uploading++;
-            },
-            beforeComplete() {
-              lifecycle.beforeComplete++;
-            },
-            afterComplete() {
-              lifecycle.afterComplete++;
-            },
-          },
+          }
         };
 
-        const wrapper = mount(<Upload ref={ref} {...props} />);
+        const wrapper = mount(Upload, props);
 
-        await act(async () => {
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
-            },
-          });
-
-          await sleep(1000);
-
-          wrapper.update();
-
-          const files = ref.current.getFiles();
-          expect(files.length).toEqual(1);
+        wrapper.vm.onInputFileChange({
+          target: {
+            files: [
+              ChunkUpload.arraybuffer2file(
+                new ArrayBuffer(FILE_SIZE),
+                FILE_NAME,
+                {
+                  type: FILE_TYPE,
+                },
+              ),
+            ],
+          },
         });
+
+        await sleep(1000);
+
+        const files = wrapper.vm.stateFiles
+        expect(files.length).toEqual(1);
       });
     });
 
     it(`stop lifecycle test`, async () => {
       await new Promise(async (resolve, reject) => {
-        const ref = React.createRef();
         let changed = false;
+        let wrapper 
 
         const lifecycle = {
           beforeRead: 0,
@@ -2030,90 +2018,88 @@ describe(`Upload Component test`, () => {
         };
 
         const props = {
-          viewType: 'list',
-          immediately: true,
-          onChange(value) {
-            if (value.length == 1) {
-              changed = true;
-            }
-          },
-          request: {
-            ...DEFAULT_REQUEST,
-            callback: (error) => {
-              try {
-                const { afterComplete, ...nextLifecycle } = lifecycle;
-                expect(!!error).toBeTruthy();
-                expect(
-                  Object.values(nextLifecycle).every((item) => !!item),
-                ).toBeTruthy();
-                expect(afterComplete).toEqual(0);
-                expect(changed).toBeTruthy;
-                const files = ref.current.getFiles();
-                expect(files[0].getStatus()).toEqual(-1);
-              } catch (err) {
-                reject(err);
+          propsData: {
+            viewType: 'list',
+            immediately: true,
+            onChange(value) {
+              if (value.length == 1) {
+                changed = true;
               }
-              resolve();
             },
-          },
-          lifecycle: {
-            afterStop() {
-              lifecycle.afterStop++;
+            request: {
+              ...DEFAULT_REQUEST,
+              callback: (error) => {
+                try {
+                  const { afterComplete, ...nextLifecycle } = lifecycle;
+                  expect(!!error).toBeTruthy();
+                  expect(
+                    Object.values(nextLifecycle).every((item) => !!item),
+                  ).toBeTruthy();
+                  expect(afterComplete).toEqual(0);
+                  expect(changed).toBeTruthy;
+                  const files = wrapper.vm.stateFiles
+                  expect(files[0].getStatus()).toEqual(-1);
+                } catch (err) {
+                  reject(err);
+                }
+                resolve();
+              },
             },
-            beforeRead() {
-              lifecycle.beforeRead++;
+            lifecycle: {
+              afterStop() {
+                lifecycle.afterStop++;
+              },
+              beforeRead() {
+                lifecycle.beforeRead++;
+              },
+              reading() {
+                lifecycle.reading++;
+              },
+              beforeCheck() {
+                lifecycle.beforeCheck++;
+              },
+              afterCheck() {
+                lifecycle.afterCheck++;
+              },
+              uploading() {
+                lifecycle.uploading++;
+              },
+              beforeComplete() {
+                lifecycle.beforeComplete++;
+                stopTask(wrapper);
+              },
+              afterComplete() {
+                lifecycle.afterComplete++;
+              },
             },
-            reading() {
-              lifecycle.reading++;
-            },
-            beforeCheck() {
-              lifecycle.beforeCheck++;
-            },
-            afterCheck() {
-              lifecycle.afterCheck++;
-            },
-            uploading() {
-              lifecycle.uploading++;
-            },
-            beforeComplete() {
-              lifecycle.beforeComplete++;
-              wrapper.update();
-              stopTask(wrapper);
-            },
-            afterComplete() {
-              lifecycle.afterComplete++;
-            },
-          },
+          }
         };
 
-        const wrapper = mount(<Upload ref={ref} {...props} />);
+        wrapper = mount(Upload, props);
 
-        await act(async () => {
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
-            },
-          });
-
-          await sleep(1000);
-
-          wrapper.update();
+        wrapper.vm.onInputFileChange({
+          target: {
+            files: [
+              ChunkUpload.arraybuffer2file(
+                new ArrayBuffer(FILE_SIZE),
+                FILE_NAME,
+                {
+                  type: FILE_TYPE,
+                },
+              ),
+            ],
+          },
         });
+
+        await sleep(1000);
+
       });
     });
 
     it(`cancel lifecycle test`, async () => {
       await new Promise(async (resolve, reject) => {
-        const ref = React.createRef();
         let changed = false;
+        let wrapper 
 
         const lifecycle = {
           beforeRead: 0,
@@ -2127,83 +2113,81 @@ describe(`Upload Component test`, () => {
         };
 
         const props = {
-          viewType: 'list',
-          immediately: true,
-          onChange(value) {
-            if (value.length == 1) {
-              changed = true;
-            }
-          },
-          request: {
-            ...DEFAULT_REQUEST,
-            callback: (error) => {
-              try {
-                const { afterComplete, ...nextLifecycle } = lifecycle;
-                expect(!!error).toBeTruthy();
-                expect(
-                  Object.values(nextLifecycle).every((item) => !!item),
-                ).toBeTruthy();
-                expect(afterComplete).toEqual(0);
-                expect(changed).toBeTruthy;
-                const files = ref.current.getFiles();
-                expect(files[0].getStatus()).toEqual(-2);
-              } catch (err) {
-                reject(err);
+          propsData: {
+            viewType: 'list',
+            immediately: true,
+            onChange(value) {
+              if (value.length == 1) {
+                changed = true;
               }
-              resolve();
             },
-          },
-          lifecycle: {
-            afterCancel() {
-              lifecycle.afterCancel++;
+            request: {
+              ...DEFAULT_REQUEST,
+              callback: (error) => {
+                try {
+                  const { afterComplete, ...nextLifecycle } = lifecycle;
+                  expect(!!error).toBeTruthy();
+                  expect(
+                    Object.values(nextLifecycle).every((item) => !!item),
+                  ).toBeTruthy();
+                  expect(afterComplete).toEqual(0);
+                  expect(changed).toBeTruthy;
+                  const files = wrapper.vm.stateFiles
+                  expect(files.length).toEqual(0);
+                } catch (err) {
+                  reject(err);
+                }
+                resolve();
+              },
             },
-            beforeRead() {
-              lifecycle.beforeRead++;
+            lifecycle: {
+              afterCancel() {
+                lifecycle.afterCancel++;
+              },
+              beforeRead() {
+                lifecycle.beforeRead++;
+              },
+              reading() {
+                lifecycle.reading++;
+              },
+              beforeCheck() {
+                lifecycle.beforeCheck++;
+              },
+              afterCheck() {
+                lifecycle.afterCheck++;
+              },
+              uploading() {
+                lifecycle.uploading++;
+              },
+              beforeComplete() {
+                lifecycle.beforeComplete++;
+                deleteTask(wrapper);
+              },
+              afterComplete() {
+                lifecycle.afterComplete++;
+              },
             },
-            reading() {
-              lifecycle.reading++;
-            },
-            beforeCheck() {
-              lifecycle.beforeCheck++;
-            },
-            afterCheck() {
-              lifecycle.afterCheck++;
-            },
-            uploading() {
-              lifecycle.uploading++;
-            },
-            beforeComplete() {
-              lifecycle.beforeComplete++;
-              wrapper.update();
-              deleteTask(wrapper);
-            },
-            afterComplete() {
-              lifecycle.afterComplete++;
-            },
-          },
+          }
         };
 
-        const wrapper = mount(<Upload ref={ref} {...props} />);
+        wrapper = mount(Upload, props);
 
-        await act(async () => {
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
-            },
-          });
-
-          await sleep(1000);
-
-          wrapper.update();
+        wrapper.vm.onInputFileChange({
+          target: {
+            files: [
+              ChunkUpload.arraybuffer2file(
+                new ArrayBuffer(FILE_SIZE),
+                FILE_NAME,
+                {
+                  type: FILE_TYPE,
+                },
+              ),
+            ],
+          },
         });
+
+        await sleep(1000);
+
       });
     });
   });
@@ -2211,402 +2195,427 @@ describe(`Upload Component test`, () => {
   describe.skip('accept test', () => {
     it(`accept video set test`, (done) => {
       const props = {
-        viewType: 'list',
-        immediately: false,
-        onChange(value) {
-          expect(value.length).toEqual(0);
-          done();
-        },
-        onValidator(error) {
-          expect(error.length).toEqual(1);
-        },
-        accept: 'video/*',
+        propsData: {
+          viewType: 'list',
+          immediately: false,
+          "on-change": function(value) {
+            expect(value.length).toEqual(0);
+            done();
+          },
+          "on-validator": function(error, value) {
+            expect(error.length).toEqual(1);
+          },
+          accept: 'video/*',
+        }
       };
 
-      const wrapper = mount(<Upload {...props} />);
+      const wrapper = mount(Upload, props);
 
-      act(() => {
-        wrapper.find('input').simulate('change', {
-          target: {
-            files: [
-              ChunkUpload.arraybuffer2file(
-                new ArrayBuffer(FILE_SIZE),
-                FILE_NAME,
-                {
-                  type: FILE_TYPE,
-                },
-              ),
-            ],
-          },
-        });
+      wrapper.vm.onInputFileChange({
+        target: {
+          files: [
+            ChunkUpload.arraybuffer2file(
+              new ArrayBuffer(FILE_SIZE),
+              FILE_NAME,
+              {
+                type: FILE_TYPE,
+              },
+            ),
+          ],
+        },
       });
+
     });
   });
 
   describe.skip('minSize test', () => {
     it(`set minSize limit the fileSize`, (done) => {
       const props = {
-        viewType: 'list',
-        immediately: false,
-        onChange(value) {
-          expect(value.length).toEqual(0);
-          done();
-        },
-        onValidator(error) {
-          expect(error.length).toEqual(1);
-        },
-        minSize: FILE_SIZE + 100,
+        propsData: {
+          viewType: 'list',
+          immediately: false,
+          "on-change": function(value) {
+            expect(value.length).toEqual(0);
+            done();
+          },
+          "on-validator": function(error) {
+            expect(error.length).toEqual(1);
+          },
+          minSize: FILE_SIZE + 100,
+        }
       };
 
-      const wrapper = mount(<Upload {...props} />);
+      const wrapper = mount(Upload, props);
 
-      act(() => {
-        wrapper.find('input').simulate('change', {
-          target: {
-            files: [
-              ChunkUpload.arraybuffer2file(
-                new ArrayBuffer(FILE_SIZE),
-                FILE_NAME,
-                {
-                  type: FILE_TYPE,
-                },
-              ),
-            ],
-          },
-        });
+      wrapper.vm.onInputFileChange({
+        target: {
+          files: [
+            ChunkUpload.arraybuffer2file(
+              new ArrayBuffer(FILE_SIZE),
+              FILE_NAME,
+              {
+                type: FILE_TYPE,
+              },
+            ),
+          ],
+        },
       });
+
     });
   });
 
   describe.skip('maxSize test', () => {
     it(`set maxSize limit the fileSize`, (done) => {
       const props = {
-        viewType: 'list',
-        immediately: false,
-        onChange(value) {
-          expect(value.length).toEqual(0);
-          done();
-        },
-        onValidator(error) {
-          expect(error.length).toEqual(1);
-        },
-        maxSize: FILE_SIZE - 100,
+        propsData: {
+          viewType: 'list',
+          immediately: false,
+          "on-change": function(value) {
+            expect(value.length).toEqual(0);
+            done();
+          },
+          "on-validator": function(error) {
+            expect(error.length).toEqual(1);
+          },
+          maxSize: FILE_SIZE - 100,
+        }
       };
 
-      const wrapper = mount(<Upload {...props} />);
+      const wrapper = mount(Upload, props);
 
-      act(() => {
-        wrapper.find('input').simulate('change', {
-          target: {
-            files: [
-              ChunkUpload.arraybuffer2file(
-                new ArrayBuffer(FILE_SIZE),
-                FILE_NAME,
-                {
-                  type: FILE_TYPE,
-                },
-              ),
-            ],
-          },
-        });
+      wrapper.vm.onInputFileChange({
+        target: {
+          files: [
+            ChunkUpload.arraybuffer2file(
+              new ArrayBuffer(FILE_SIZE),
+              FILE_NAME,
+              {
+                type: FILE_TYPE,
+              },
+            ),
+          ],
+        },
       });
+
     });
   });
 
   describe.skip('maxFiles test', () => {
     it(`set maxFiles limit the file length`, (done) => {
       const props = {
-        viewType: 'list',
-        immediately: false,
-        onChange(value) {
-          expect(value.length).toEqual(0);
-          done();
-        },
-        onValidator(error) {
-          expect(error.length).toEqual(2);
-        },
-        maxFiles: 1,
-        multiple: true,
+        propsData: {
+          viewType: 'list',
+          immediately: false,
+          "on-change": function(value) {
+            expect(value.length).toEqual(0);
+            done();
+          },
+          "on-validator": function(error) {
+            expect(error.length).toEqual(2);
+          },
+          maxFiles: 1,
+          multiple: true,
+        }
       };
 
-      const wrapper = mount(<Upload {...props} />);
+      const wrapper = mount(Upload, props);
 
-      act(() => {
-        wrapper.find('input').simulate('change', {
-          target: {
-            files: [
-              ChunkUpload.arraybuffer2file(
-                new ArrayBuffer(FILE_SIZE),
-                FILE_NAME,
-                {
-                  type: FILE_TYPE,
-                },
-              ),
-              ChunkUpload.arraybuffer2file(
-                new ArrayBuffer(FILE_SIZE),
-                FILE_NAME,
-                {
-                  type: FILE_TYPE,
-                },
-              ),
-            ],
-          },
-        });
+      wrapper.vm.onInputFileChange({
+        target: {
+          files: [
+            ChunkUpload.arraybuffer2file(
+              new ArrayBuffer(FILE_SIZE),
+              FILE_NAME,
+              {
+                type: FILE_TYPE,
+              },
+            ),
+            ChunkUpload.arraybuffer2file(
+              new ArrayBuffer(FILE_SIZE),
+              FILE_NAME,
+              {
+                type: FILE_TYPE,
+              },
+            ),
+          ],
+        },
       });
+
     });
 
     it(`set maxFiles for 0 to not limit the file length`, (done) => {
       const props = {
-        viewType: 'list',
-        immediately: false,
-        onChange(value) {
-          expect(value.length).toEqual(2);
-          done();
-        },
-        onValidator(error) {
-          expect(error.length).toEqual(0);
-        },
-        maxFiles: 0,
-        multiple: true,
+        propsData: {
+          viewType: 'list',
+          immediately: false,
+          "on-change": function(value) {
+            expect(value.length).toEqual(2);
+            done();
+          },
+          "on-validator": function(error) {
+            expect(error.length).toEqual(0);
+          },
+          maxFiles: 0,
+          multiple: true,
+        }
       };
 
-      const wrapper = mount(<Upload {...props} />);
+      const wrapper = mount(Upload, props);
 
-      act(() => {
-        wrapper.find('input').simulate('change', {
-          target: {
-            files: [
-              ChunkUpload.arraybuffer2file(
-                new ArrayBuffer(FILE_SIZE),
-                FILE_NAME,
-                {
-                  type: FILE_TYPE,
-                },
-              ),
-              ChunkUpload.arraybuffer2file(
-                new ArrayBuffer(FILE_SIZE),
-                FILE_NAME,
-                {
-                  type: FILE_TYPE,
-                },
-              ),
-            ],
-          },
-        });
+      wrapper.vm.onInputFileChange({
+        target: {
+          files: [
+            ChunkUpload.arraybuffer2file(
+              new ArrayBuffer(FILE_SIZE),
+              FILE_NAME,
+              {
+                type: FILE_TYPE,
+              },
+            ),
+            ChunkUpload.arraybuffer2file(
+              new ArrayBuffer(FILE_SIZE),
+              FILE_NAME,
+              {
+                type: FILE_TYPE,
+              },
+            ),
+          ],
+        },
       });
+    
     });
 
     it(`not set maxFiles to not limit the file length`, (done) => {
       const props = {
-        viewType: 'list',
-        immediately: false,
-        onChange(value) {
-          expect(value.length).toEqual(2);
-          done();
-        },
-        onValidator(error) {
-          expect(error.length).toEqual(0);
-        },
-        multiple: true,
+        propsData: {
+          viewType: 'list',
+          immediately: false,
+          "on-change": function(value) {
+            expect(value.length).toEqual(2);
+            done();
+          },
+          "on-validator": function(error) {
+            expect(error.length).toEqual(0);
+          },
+          multiple: true,
+        }
       };
 
-      const wrapper = mount(<Upload {...props} />);
+      const wrapper = mount(Upload, props);
 
-      act(() => {
-        wrapper.find('input').simulate('change', {
-          target: {
-            files: [
-              ChunkUpload.arraybuffer2file(
-                new ArrayBuffer(FILE_SIZE),
-                FILE_NAME,
-                {
-                  type: FILE_TYPE,
-                },
-              ),
-              ChunkUpload.arraybuffer2file(
-                new ArrayBuffer(FILE_SIZE),
-                FILE_NAME,
-                {
-                  type: FILE_TYPE,
-                },
-              ),
-            ],
-          },
-        });
+      wrapper.vm.onInputFileChange({
+        target: {
+          files: [
+            ChunkUpload.arraybuffer2file(
+              new ArrayBuffer(FILE_SIZE),
+              FILE_NAME,
+              {
+                type: FILE_TYPE,
+              },
+            ),
+            ChunkUpload.arraybuffer2file(
+              new ArrayBuffer(FILE_SIZE),
+              FILE_NAME,
+              {
+                type: FILE_TYPE,
+              },
+            ),
+          ],
+        },
       });
+
     });
   });
 
   describe.skip('limit test', () => {
     it(`set limit the file length`, () => {
       const props = {
-        viewType: 'list',
-        immediately: false,
-        limit: 1,
-        value: [MOCK_COMPLETE_STRING_FILE],
+        propsData: {
+          viewType: 'list',
+          immediately: false,
+          limit: 1,
+          value: [MOCK_COMPLETE_STRING_FILE],
+        }
       };
 
-      const wrapper = mount(<Upload {...props} />);
+      const wrapper = mount(Upload, props);
 
-      expect(wrapper.exists('.chunk-upload-dropzone-list')).toBeFalsy();
+      expect(wrapper.find('.chunk-upload-dropzone-list').exists()).toBeFalsy();
     });
 
     it(`set limit the file length and the custom container params isLimit is true`, () => {
-      const props = {
-        viewType: 'list',
-        immediately: false,
-        limit: 1,
-        value: [MOCK_COMPLETE_STRING_FILE],
-        containerRender: ({ isLimit }) => {
-          expect(isLimit).toBeTruthy();
-          return <span></span>;
-        },
-      };
 
-      mount(<Upload {...props} />);
+      const UploadWrapper = createVue({
+        components: {
+          Upload
+        },
+        render() {
+          const props = {
+            props: {
+                viewType: 'list',
+              immediately: false,
+              limit: 1,
+              value: [MOCK_COMPLETE_STRING_FILE],
+              containerRender: ({ isLimit }) => {
+                expect(isLimit).toBeTruthy();
+                return <span></span>;
+              },
+            }
+          };
+          return (
+            <upload
+              {...props}
+            />
+          )
+        }
+      })
+    
+      destroyVM(UploadWrapper)
+
     });
 
     it(`not set limit the file length`, () => {
       const props = {
-        viewType: 'list',
-        immediately: false,
-        value: [MOCK_COMPLETE_STRING_FILE],
+        propsData: {
+          viewType: 'list',
+          immediately: false,
+          value: [MOCK_COMPLETE_STRING_FILE],
+        }
       };
 
-      const wrapper = mount(<Upload {...props} />);
+      const wrapper = mount(Upload, props);
 
-      expect(wrapper.exists('.chunk-upload-dropzone-list')).toBeTruthy();
+      expect(wrapper.find('.chunk-upload-dropzone-list').exists()).toBeTruthy();
     });
 
     it(`set limit value for -1`, () => {
       const props = {
-        viewType: 'list',
-        immediately: false,
-        value: [MOCK_COMPLETE_STRING_FILE],
-        limit: -1,
+        propsData: {
+          viewType: 'list',
+          immediately: false,
+          value: [MOCK_COMPLETE_STRING_FILE],
+          limit: -1,
+        }
       };
 
-      const wrapper = mount(<Upload {...props} />);
+      const wrapper = mount(Upload, props);
 
-      expect(wrapper.exists('.chunk-upload-dropzone-list')).toBeTruthy();
+      expect(wrapper.find('.chunk-upload-dropzone-list').exists()).toBeTruthy();
     });
   });
 
   describe.skip('disabled test', () => {
     it(`set disabled to disable click upload`, async () => {
       const props = {
-        viewType: 'list',
-        immediately: false,
-        disabled: true,
+        propsData: {
+          viewType: 'list',
+          immediately: false,
+          disabled: true,
+        }
       };
 
-      const ref = React.createRef();
+      const wrapper = mount(Upload, props);
 
-      const wrapper = mount(<Upload ref={ref} {...props} />);
-
-      await act(async () => {
-        wrapper.find('input').simulate('change', {
-          target: {
-            files: [
-              ChunkUpload.arraybuffer2file(
-                new ArrayBuffer(FILE_SIZE),
-                FILE_NAME,
-                {
-                  type: FILE_TYPE,
-                },
-              ),
-            ],
-          },
-        });
-
-        await sleep(100);
-
-        expect(ref.current.getFiles().length).toEqual(0);
+      wrapper.vm.onInputFileChange({
+        target: {
+          files: [
+            ChunkUpload.arraybuffer2file(
+              new ArrayBuffer(FILE_SIZE),
+              FILE_NAME,
+              {
+                type: FILE_TYPE,
+              },
+            ),
+          ],
+        },
       });
+
+      await sleep(100);
+
+      expect(wrapper.vm.stateFiles.length).toEqual(0);
+
     });
 
     it(`set disabled to disable drop upload`, async () => {
       const props = {
-        viewType: 'list',
-        immediately: false,
-        disabled: true,
+        propsData: {
+          viewType: 'list',
+          immediately: false,
+          disabled: true,
+        }
       };
 
-      const ref = React.createRef();
+      const wrapper = mount(Upload, props);
 
-      const wrapper = mount(<Upload ref={ref} {...props} />);
-
-      await act(async () => {
-        wrapper.find('input').simulate('drop', {
-          target: {
-            files: [
-              ChunkUpload.arraybuffer2file(
-                new ArrayBuffer(FILE_SIZE),
-                FILE_NAME,
-                {
-                  type: FILE_TYPE,
-                },
-              ),
-            ],
-          },
-        });
-
-        await sleep(100);
-
-        expect(ref.current.getFiles().length).toEqual(0);
+      wrapper.vm.onInputFileChange({
+        target: {
+          files: [
+            ChunkUpload.arraybuffer2file(
+              new ArrayBuffer(FILE_SIZE),
+              FILE_NAME,
+              {
+                type: FILE_TYPE,
+              },
+            ),
+          ],
+        },
       });
+
+      await sleep(100);
+
+      expect(ref.current.getFiles().length).toEqual(0);
+
     });
   });
 
   describe.skip('multiple test', () => {
     it(`can select multiple file`, (done) => {
       const props = {
-        viewType: 'list',
-        immediately: false,
-        onChange(value) {
-          expect(value.length).toEqual(2);
-          done();
-        },
-        multiple: true,
+        propsData: {
+          viewType: 'list',
+          immediately: false,
+          "on-change": function(value) {
+            expect(value.length).toEqual(2);
+            done();
+          },
+          multiple: true,
+        }
       };
 
-      const wrapper = mount(<Upload {...props} />);
+      const wrapper = mount(Upload, props);
 
-      act(() => {
-        wrapper.find('input').simulate('change', {
-          target: {
-            files: [
-              ChunkUpload.arraybuffer2file(
-                new ArrayBuffer(FILE_SIZE),
-                FILE_NAME,
-                {
-                  type: FILE_TYPE,
-                },
-              ),
-              ChunkUpload.arraybuffer2file(
-                new ArrayBuffer(FILE_SIZE),
-                FILE_NAME,
-                {
-                  type: FILE_TYPE,
-                },
-              ),
-            ],
-          },
-        });
+      wrapper.vm.onInputFileChange({
+        target: {
+          files: [
+            ChunkUpload.arraybuffer2file(
+              new ArrayBuffer(FILE_SIZE),
+              FILE_NAME,
+              {
+                type: FILE_TYPE,
+              },
+            ),
+            ChunkUpload.arraybuffer2file(
+              new ArrayBuffer(FILE_SIZE),
+              FILE_NAME,
+              {
+                type: FILE_TYPE,
+              },
+            ),
+          ],
+        },
       });
+
     });
   });
 
-  describe.skip('locale test', () => {
+  describe('locale test', () => {
     const valid = (value, wrapper, find) => {
       const wrapperProgress = wrapper.find(find);
-      wrapperProgress.update();
-      expect(wrapperProgress.text()).toEqual(value);
+      expect(wrapperProgress.innerHTML.includes(value)).toBeTruthy()
     };
 
     it(`set locale list`, async () => {
       await new Promise(async (resolve, reject) => {
-        const ref = React.createRef();
 
         const locale = {
           container: 'testLocaleListContainer',
@@ -2621,116 +2630,114 @@ describe(`Upload Component test`, () => {
         };
 
         const props = {
-          viewType: 'list',
-          immediately: false,
-          request: {
-            ...DEFAULT_REQUEST,
-            callback: (error, value) => {
-              valid(
-                locale.progress.fulfilled,
-                wrapper,
-                '.chunk-upload-list-progress-status',
-              );
-              if (error) {
-                reject(error);
-              } else {
-                resolve();
-              }
+          propsData: {
+            viewType: 'list',
+            immediately: false,
+            request: {
+              ...DEFAULT_REQUEST,
+              callback: (error, value) => {
+                valid(
+                  locale.progress.fulfilled,
+                  wrapper,
+                  '.chunk-upload-list-progress-status',
+                );
+                if (error) {
+                  reject(error);
+                } else {
+                  resolve();
+                }
+              },
             },
-          },
-          locale: locale,
-          lifecycle: {
-            beforeRead() {
-              valid(
-                locale.progress.reading,
-                wrapper,
-                '.chunk-upload-list-progress-status',
-              );
+            locale: locale,
+            lifecycle: {
+              beforeRead() {
+                valid(
+                  locale.progress.reading,
+                  wrapper,
+                  '.chunk-upload-list-progress-status',
+                );
+              },
+              reading() {
+                valid(
+                  locale.progress.reading,
+                  wrapper,
+                  '.chunk-upload-list-progress-status',
+                );
+              },
+              beforeCheck() {
+                valid(
+                  locale.progress.uploading,
+                  wrapper,
+                  '.chunk-upload-list-progress-status',
+                );
+              },
+              afterCheck() {
+                valid(
+                  locale.progress.uploading,
+                  wrapper,
+                  '.chunk-upload-list-progress-status',
+                );
+              },
+              uploading() {
+                valid(
+                  locale.progress.uploading,
+                  wrapper,
+                  '.chunk-upload-list-progress-status',
+                );
+              },
+              beforeComplete() {
+                valid(
+                  locale.progress.uploading,
+                  wrapper,
+                  '.chunk-upload-list-progress-status',
+                );
+              },
+              afterComplete() {
+                valid(
+                  locale.progress.fulfilled,
+                  wrapper,
+                  '.chunk-upload-list-progress-status',
+                );
+              },
             },
-            reading() {
-              valid(
-                locale.progress.reading,
-                wrapper,
-                '.chunk-upload-list-progress-status',
-              );
-            },
-            beforeCheck() {
-              valid(
-                locale.progress.uploading,
-                wrapper,
-                '.chunk-upload-list-progress-status',
-              );
-            },
-            afterCheck() {
-              valid(
-                locale.progress.uploading,
-                wrapper,
-                '.chunk-upload-list-progress-status',
-              );
-            },
-            uploading() {
-              valid(
-                locale.progress.uploading,
-                wrapper,
-                '.chunk-upload-list-progress-status',
-              );
-            },
-            beforeComplete() {
-              valid(
-                locale.progress.uploading,
-                wrapper,
-                '.chunk-upload-list-progress-status',
-              );
-            },
-            afterComplete() {
-              valid(
-                locale.progress.fulfilled,
-                wrapper,
-                '.chunk-upload-list-progress-status',
-              );
-            },
-          },
+          }
         };
 
-        const wrapper = mount(<Upload ref={ref} {...props} />);
+        const wrapper = mount(Upload, props);
         const wrapperIcon = wrapper.find('.chunk-upload-container-icon');
-        expect(wrapperIcon.text().includes(locale.containerIcon)).toBeTruthy();
+        expect(wrapperIcon.innerHTML.includes(locale.containerIcon)).toBeTruthy();
         const wrapperContainer = wrapper.find('.chunk-upload-dropzone-list');
-        expect(wrapperContainer.text().includes(locale.container)).toBeTruthy();
+        expect(wrapperContainer.innerHTML.includes(locale.container)).toBeTruthy();
 
-        await act(async () => {
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
-            },
-          });
-
-          await sleep(1000);
-
-          wrapper.update();
-
-          const files = ref.current.getFiles();
-          expect(files.length).toEqual(1);
-          expect(files[0].getStatus() == 0).toBeTruthy();
-
-          uploadTask(wrapper);
-
-          await sleep(1000);
+        wrapper.vm.onInputFileChange({
+          target: {
+            files: [
+              ChunkUpload.arraybuffer2file(
+                new ArrayBuffer(FILE_SIZE),
+                FILE_NAME,
+                {
+                  type: FILE_TYPE,
+                },
+              ),
+            ],
+          },
         });
+
+        await sleep(1000);
+
+        const files = wrapper.vm.stateFiles
+        expect(files.length).toEqual(1);
+        expect(files[0].getStatus() == 0).toBeTruthy();
+
+        uploadTask(wrapper);
+
+        await sleep(1000);
+
       });
     });
 
     it(`set locale card`, async () => {
       await new Promise(async (resolve, reject) => {
-        const ref = React.createRef();
 
         const locale = {
           container: 'testLocaleCardContainer',
@@ -2745,122 +2752,119 @@ describe(`Upload Component test`, () => {
         };
 
         const props = {
-          viewType: 'card',
-          immediately: false,
-          request: {
-            ...DEFAULT_REQUEST,
-            callback: (error, value) => {
-              valid(
-                locale.progress.fulfilled,
-                wrapper,
-                '.chunk-upload-list-progress-status',
-              );
-              if (error) {
-                reject(error);
-              } else {
-                resolve();
-              }
+          propsData: {
+            viewType: 'card',
+            immediately: false,
+            request: {
+              ...DEFAULT_REQUEST,
+              callback: (error, value) => {
+                valid(
+                  locale.progress.fulfilled,
+                  wrapper,
+                  '.chunk-upload-list-progress-status',
+                );
+                if (error) {
+                  reject(error);
+                } else {
+                  resolve();
+                }
+              },
             },
-          },
-          locale: locale,
-          lifecycle: {
-            beforeRead() {
-              valid(
-                locale.progress.reading,
-                wrapper,
-                '.chunk-upload-list-progress-status',
-              );
+            locale: locale,
+            lifecycle: {
+              beforeRead() {
+                valid(
+                  locale.progress.reading,
+                  wrapper,
+                  '.chunk-upload-list-progress-status',
+                );
+              },
+              reading() {
+                valid(
+                  locale.progress.reading,
+                  wrapper,
+                  '.chunk-upload-list-progress-status',
+                );
+              },
+              beforeCheck() {
+                valid(
+                  locale.progress.uploading,
+                  wrapper,
+                  '.chunk-upload-list-progress-status',
+                );
+              },
+              afterCheck() {
+                valid(
+                  locale.progress.uploading,
+                  wrapper,
+                  '.chunk-upload-list-progress-status',
+                );
+              },
+              uploading() {
+                valid(
+                  locale.progress.uploading,
+                  wrapper,
+                  '.chunk-upload-list-progress-status',
+                );
+              },
+              beforeComplete() {
+                valid(
+                  locale.progress.uploading,
+                  wrapper,
+                  '.chunk-upload-list-progress-status',
+                );
+              },
+              afterComplete() {
+                valid(
+                  locale.progress.fulfilled,
+                  wrapper,
+                  '.chunk-upload-list-progress-status',
+                );
+              },
             },
-            reading() {
-              valid(
-                locale.progress.reading,
-                wrapper,
-                '.chunk-upload-list-progress-status',
-              );
-            },
-            beforeCheck() {
-              valid(
-                locale.progress.uploading,
-                wrapper,
-                '.chunk-upload-list-progress-status',
-              );
-            },
-            afterCheck() {
-              valid(
-                locale.progress.uploading,
-                wrapper,
-                '.chunk-upload-list-progress-status',
-              );
-            },
-            uploading() {
-              valid(
-                locale.progress.uploading,
-                wrapper,
-                '.chunk-upload-list-progress-status',
-              );
-            },
-            beforeComplete() {
-              valid(
-                locale.progress.uploading,
-                wrapper,
-                '.chunk-upload-list-progress-status',
-              );
-            },
-            afterComplete() {
-              valid(
-                locale.progress.fulfilled,
-                wrapper,
-                '.chunk-upload-list-progress-status',
-              );
-            },
-          },
+          }
         };
 
-        const wrapper = mount(<Upload ref={ref} {...props} />);
+        const wrapper = mount(Upload, props);
         const wrapperIcon = wrapper.find(
           '.chunk-upload-dropzone-card-content-icon-content',
         );
-        expect(wrapperIcon.text().includes(locale.containerIcon)).toBeTruthy();
+        expect(wrapperIcon.innerHTML.includes(locale.containerIcon)).toBeTruthy();
         const wrapperContainer = wrapper.find(
           '.chunk-upload-dropzone-card-content',
         );
-        expect(wrapperContainer.text().includes(locale.container)).toBeTruthy();
+        expect(wrapperContainer.innerHTML.includes(locale.container)).toBeTruthy();
 
-        await act(async () => {
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
-            },
-          });
-
-          await sleep(1000);
-
-          wrapper.update();
-
-          const files = ref.current.getFiles();
-          expect(files.length).toEqual(1);
-          expect(files[0].getStatus() == 0).toBeTruthy();
-
-          uploadTask(wrapper, 0, false);
-
-          await sleep(1000);
+        wrapper.vm.onInputFileChange({
+          target: {
+            files: [
+              ChunkUpload.arraybuffer2file(
+                new ArrayBuffer(FILE_SIZE),
+                FILE_NAME,
+                {
+                  type: FILE_TYPE,
+                },
+              ),
+            ],
+          },
         });
+
+        await sleep(1000);
+
+        const files = wrapper.vm.stateFiles
+        expect(files.length).toEqual(1);
+        expect(files[0].getStatus() == 0).toBeTruthy();
+
+        uploadTask(wrapper, 0, false);
+
+        await sleep(1000);
+
       });
     });
 
     it(`set locale on stop locale`, async () => {
       await new Promise(async (resolve, reject) => {
         let stopDone = false;
-
-        const ref = React.createRef();
 
         const locale = {
           progress: {
@@ -2869,71 +2873,69 @@ describe(`Upload Component test`, () => {
         };
 
         const props = {
-          viewType: 'list',
-          immediately: false,
-          request: {
-            ...DEFAULT_REQUEST,
-            uploadFn: () => {
-              wrapper.update();
-              stopTask(wrapper);
+          propsData: {
+            viewType: 'list',
+            immediately: false,
+            request: {
+              ...DEFAULT_REQUEST,
+              uploadFn: () => {
+                wrapper.update();
+                stopTask(wrapper);
+              },
+              callback: (error, value) => {
+                expect(stopDone).toBeTruthy();
+                if (error) {
+                  resolve();
+                } else {
+                  reject();
+                }
+              },
             },
-            callback: (error, value) => {
-              expect(stopDone).toBeTruthy();
-              if (error) {
-                resolve();
-              } else {
-                reject();
-              }
+            locale: locale,
+            lifecycle: {
+              afterStop: () => {
+                stopDone = true;
+                valid(
+                  locale.progress.stopping,
+                  wrapper,
+                  '.chunk-upload-list-progress-status',
+                );
+              },
             },
-          },
-          locale: locale,
-          lifecycle: {
-            afterStop: () => {
-              stopDone = true;
-              valid(
-                locale.progress.stopping,
-                wrapper,
-                '.chunk-upload-list-progress-status',
-              );
-            },
-          },
+          }
         };
 
-        const wrapper = mount(<Upload ref={ref} {...props} />);
+        const wrapper = mount(Upload, props);
 
-        await act(async () => {
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
-            },
-          });
-
-          await sleep(1000);
-
-          wrapper.update();
-
-          const files = ref.current.getFiles();
-          expect(files.length).toEqual(1);
-          expect(files[0].getStatus() == 0).toBeTruthy();
-
-          uploadTask(wrapper);
-
-          await sleep(1000);
+        wrapper.vm.onInputFileChange({
+          target: {
+            files: [
+              ChunkUpload.arraybuffer2file(
+                new ArrayBuffer(FILE_SIZE),
+                FILE_NAME,
+                {
+                  type: FILE_TYPE,
+                },
+              ),
+            ],
+          },
         });
+
+        await sleep(1000);
+
+        const files = wrapper.vm.stateFiles
+        expect(files.length).toEqual(1);
+        expect(files[0].getStatus() == 0).toBeTruthy();
+
+        uploadTask(wrapper);
+
+        await sleep(1000);
+
       });
     });
 
     it(`set locale on reject locale`, async () => {
       await new Promise(async (resolve, reject) => {
-        const ref = React.createRef();
 
         const locale = {
           progress: {
@@ -2942,58 +2944,57 @@ describe(`Upload Component test`, () => {
         };
 
         const props = {
-          viewType: 'list',
-          immediately: false,
-          request: {
-            ...DEFAULT_REQUEST,
-            uploadFn: () => {
-              throw new Error();
+          propsData: {
+            viewType: 'list',
+            immediately: false,
+            request: {
+              ...DEFAULT_REQUEST,
+              uploadFn: () => {
+                throw new Error();
+              },
+              callback: (error, value) => {
+                valid(
+                  locale.progress.rejected,
+                  wrapper,
+                  '.chunk-upload-list-progress-status',
+                );
+                if (error) {
+                  resolve();
+                } else {
+                  reject();
+                }
+              },
             },
-            callback: (error, value) => {
-              valid(
-                locale.progress.rejected,
-                wrapper,
-                '.chunk-upload-list-progress-status',
-              );
-              if (error) {
-                resolve();
-              } else {
-                reject();
-              }
-            },
-          },
-          locale: locale,
+            locale: locale,
+          }
         };
 
-        const wrapper = mount(<Upload ref={ref} {...props} />);
+        const wrapper = mount(Upload, props);
 
-        await act(async () => {
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
-            },
-          });
-
-          await sleep(1000);
-
-          wrapper.update();
-
-          const files = ref.current.getFiles();
-          expect(files.length).toEqual(1);
-          expect(files[0].getStatus() == 0).toBeTruthy();
-
-          uploadTask(wrapper);
-
-          await sleep(1000);
+        wrapper.vm.onInputFileChange({
+          target: {
+            files: [
+              ChunkUpload.arraybuffer2file(
+                new ArrayBuffer(FILE_SIZE),
+                FILE_NAME,
+                {
+                  type: FILE_TYPE,
+                },
+              ),
+            ],
+          },
         });
+
+        await sleep(1000);
+
+        const files = wrapper.vm.stateFiles
+        expect(files.length).toEqual(1);
+        expect(files[0].getStatus() == 0).toBeTruthy();
+
+        uploadTask(wrapper);
+
+        await sleep(1000);
+
       });
     });
   });

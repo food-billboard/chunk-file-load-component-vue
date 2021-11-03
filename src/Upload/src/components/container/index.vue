@@ -9,6 +9,7 @@ const injectProps = [
   'isDragReject',
   'isFileDialogActive',
   'isFocused',
+  'locale'
 ]
 
 export default {

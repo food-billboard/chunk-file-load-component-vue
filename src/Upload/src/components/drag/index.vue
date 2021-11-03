@@ -67,7 +67,7 @@
           ? `.${ name.split('.').pop() }`
           : '';
         const baseType = type.replace(/\/.*$/, '');
-        const result = accept.split(',')
+        const result = (this.accept || "").split(',')
           .map(type => type.trim())
           .filter(type => type)
           .some(acceptedType => {
@@ -98,7 +98,7 @@
           code: ERRORS_MAP.minSize
         })
         //accept 
-        if(this.accept && this.acceptValidator(file)) {
+        if(this.accept && !this.acceptValidator(file)) {
           errors.push({
             message: ERRORS_MAP.accept,
             code: ERRORS_MAP.accept
