@@ -40,7 +40,7 @@ export default {
   },
   render() {
 
-    const { viewType, containerRender, currentFiles, limit, inputProps, ...nextProps } = this.$props
+    const { viewType, currentFiles, limit, inputProps, ...nextProps } = this.$props
 
     const inputContainer = (
       <input {...this.inputProps} ref={"chunk-file-load-ref"} />
@@ -54,7 +54,7 @@ export default {
       return (
         <span {...nextProps.rootProps}>
           {inputContainer}
-          {containerRender(params)}
+          {this.containerRender(params)}
         </span>
       );
     }

@@ -1,3 +1,7 @@
+import Vue from 'vue'
+
+let id = 0;
+
 export const sleep = async (times = 1000) =>
   new Promise((resolve) => setTimeout(resolve, times));
 
@@ -98,4 +102,27 @@ export const previewTask = (dom, index=0, isList=true) => {
   const button = target.at(index).findAll('button');
   button.at(2).trigger('click');
   return button;
+};
+
+const createElm = function() {
+  const elm = document.createElement('div');
+
+  elm.id = 'app' + ++id;
+  document.body.appendChild(elm);
+
+  return elm;
+};
+
+export const createVue = function(Compo, mounted = false) {
+  if (Object.prototype.toString.call(Compo) === '[object String]') {
+    Compo = { template: Compo };
+  }
+  return new Vue(Compo).$mount(mounted === false ? null : createElm());
+};
+
+export const destroyVM = function(vm) {
+  vm.$destroy && vm.$destroy();
+  vm.$el &&
+  vm.$el.parentNode &&
+  vm.$el.parentNode.removeChild(vm.$el);
 };

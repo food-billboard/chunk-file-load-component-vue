@@ -27,8 +27,8 @@
           {this.$slots.default}
           {
             !!this.showUploadList && (
-              <aside style={this.viewStyle} className={this.className}>
-                <ul className={'chunk-upload-list'}>
+              <aside style={this.viewStyle} class={this.className}>
+                <ul class={'chunk-upload-list'}>
                 {
                   value.map((item) => {
                     const props = {
