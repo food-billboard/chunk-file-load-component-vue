@@ -100,7 +100,7 @@
       limit: Number,
       actionUrl: String | Array,
       method: Array,
-      headers: Object,
+      headers: Object | Array,
       withCredentials: Boolean,
       locale: {
         type: Object,
@@ -281,7 +281,7 @@
         const { resolve, reject } = this.$refs["chunk-file-load-drag"].customValidator(e.target.files)
         this.onDrop(resolve, reject)
         e.target.value = ""
-      }
+      },
     },
     computed: {
       formatFiles() {
@@ -298,6 +298,7 @@
             type: "file",
             multiple: !!this.multiple,
             accept: this.accept,
+            disabled: this.disabled
           },
           on: {
             change: this.onInputFileChange,
@@ -317,6 +318,9 @@
           }
         }
       },
+      customValidator() {
+        return this.validator || getInstallMap("validator")
+      }
     },
     render() {
 
@@ -361,7 +365,7 @@
             accept={this.accept}
             disabled={this.disabled}
             drop={this.onDrop}
-            validator={this.validator}
+            validator={this.customValidator}
             multiple={this.multiple}
             minSize={this.minSize}
             maxSize={this.maxSize}

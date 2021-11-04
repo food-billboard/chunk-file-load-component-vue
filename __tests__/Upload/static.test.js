@@ -1,4 +1,5 @@
 import { Upload as ChunkUpload } from 'chunk-file-upload';
+import { mount } from '@vue/test-utils'
 import Upload from '@/Upload';
 import {
   exitDataFn,
@@ -35,7 +36,7 @@ const customRequest = (callback) => (params) => {
   };
 };
 
-describe.skip(`Upload static method test`, () => {
+describe(`Upload static method test`, () => {
   describe('install test', () => {
     it(`install request test`, async () => {
       let doneNote = {
@@ -46,7 +47,7 @@ describe.skip(`Upload static method test`, () => {
       };
 
       await new Promise(async (resolve, reject) => {
-        Upload.install(
+        Upload.plugins.install(
           'request',
           customRequest({
             params: (params) => {},
@@ -70,48 +71,45 @@ describe.skip(`Upload static method test`, () => {
           }),
         );
 
-        const ref = React.createRef();
-
         const props = {
-          viewType: 'list',
-          immediately: false,
-          actionUrl: 'testInstallActionUrl',
+          propsData: {
+            viewType: 'list',
+            immediately: false,
+            actionUrl: 'testInstallActionUrl',
+          }
         };
 
-        const wrapper = mount(<Upload ref={ref} {...props} />);
-
-        await act(async () => {
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
-            },
-          });
-
-          await sleep(1000);
-
-          wrapper.update();
-
-          uploadTask(wrapper);
-
-          const files = ref.current.getFiles();
-          expect(files.length).toEqual(1);
+        const wrapper = mount(Upload, props);
+        
+        wrapper.vm.onInputFileChange({
+          target: {
+            files: [
+              ChunkUpload.arraybuffer2file(
+                new ArrayBuffer(FILE_SIZE),
+                FILE_NAME,
+                {
+                  type: FILE_TYPE,
+                },
+              ),
+            ],
+          },
         });
+
+        await sleep(1000);
+
+        uploadTask(wrapper);
+
+        const files = wrapper.vm.stateFiles
+        expect(files.length).toEqual(1);
+
       });
 
-      Upload.uninstall('request');
+      Upload.plugins.uninstall('request');
     });
 
     it(`install validator test`, async () => {
       const message = 'message-error';
-      Upload.install('validator', (file) => {
+      Upload.plugins.install('validator', (file) => {
         const type = file.type;
         return type.startsWith('video')
           ? null
@@ -122,136 +120,133 @@ describe.skip(`Upload static method test`, () => {
       });
 
       await new Promise(async (resolve, reject) => {
-        const ref = React.createRef();
 
         const props = {
-          viewType: 'list',
-          onValidator(errorFile, fulFile) {
-            expect(errorFile).toBeInstanceOf(Array);
-            expect(errorFile.length).toEqual(1);
-            expect(fulFile).toBeInstanceOf(Array);
-            expect(fulFile.length).toEqual(0);
-            resolve();
-          },
-          request: {
-            exitDataFn,
-            uploadFn,
-            completeFn,
-          },
+          propsData: {
+            viewType: 'list',
+            "on-validator": function(errorFile, fulFile) {
+              expect(errorFile).toBeInstanceOf(Array);
+              expect(errorFile.length).toEqual(1);
+              expect(fulFile).toBeInstanceOf(Array);
+              expect(fulFile.length).toEqual(0);
+              resolve();
+            },
+            request: {
+              exitDataFn,
+              uploadFn,
+              completeFn,
+            },
+          }
         };
 
-        const wrapper = mount(<Upload ref={ref} {...props} />);
+        const wrapper = mount(Upload, props);
 
-        await act(async () => {
-          await sleep(100);
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
-            },
-          });
-
-          await sleep(1000);
+        wrapper.vm.onInputFileChange({
+          target: {
+            files: [
+              ChunkUpload.arraybuffer2file(
+                new ArrayBuffer(FILE_SIZE),
+                FILE_NAME,
+                {
+                  type: FILE_TYPE,
+                },
+              ),
+            ],
+          },
         });
+
+        await sleep(1000);
+
       });
 
-      Upload.uninstall('validator');
+      Upload.plugins.uninstall('validator');
     });
   });
 
   describe('uninstall test', () => {
     it(`uninstall request test`, async () => {
-      Upload.uninstall('request');
+      Upload.plugins.uninstall('request');
 
       await new Promise(async (resolve, reject) => {
-        const ref = React.createRef();
 
         const props = {
-          viewType: 'list',
-          immediately: false,
-          onError: (error) => {
-            expect(error).toBeDefined();
-            resolve();
-          },
+          propsData: {
+            viewType: 'list',
+            immediately: false,
+            "on-error": (error) => {
+              expect(error).toBeDefined();
+              resolve();
+            },
+          }
         };
 
-        const wrapper = mount(<Upload ref={ref} {...props} />);
+        const wrapper = mount(Upload, props);
 
-        await act(async () => {
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
-            },
-          });
-
-          await sleep(1000);
-
-          wrapper.update();
-
-          uploadTask(wrapper);
-
-          const files = ref.current.getFiles();
-          expect(files.length).toEqual(1);
+        wrapper.vm.onInputFileChange({
+          target: {
+            files: [
+              ChunkUpload.arraybuffer2file(
+                new ArrayBuffer(FILE_SIZE),
+                FILE_NAME,
+                {
+                  type: FILE_TYPE,
+                },
+              ),
+            ],
+          },
         });
+
+        await sleep(1000);
+
+        uploadTask(wrapper);
+
+        const files = wrapper.vm.stateFiles
+        expect(files.length).toEqual(1);
+
       });
     });
 
     it(`uninstall validator test`, async () => {
-      Upload.uninstall('validator');
+      Upload.plugins.uninstall('validator');
       await new Promise(async (resolve, reject) => {
-        const ref = React.createRef();
 
         const props = {
-          viewType: 'list',
-          onValidator(errorFile, fulFile) {
-            expect(errorFile).toBeInstanceOf(Array);
-            expect(errorFile.length).toEqual(0);
-            expect(fulFile).toBeInstanceOf(Array);
-            expect(fulFile.length).toEqual(1);
-            resolve();
-          },
-          request: {
-            exitDataFn,
-            uploadFn,
-            completeFn,
-          },
+          propsData: {
+            viewType: 'list',
+            "on-validator": function(errorFile, fulFile) {
+              expect(errorFile).toBeInstanceOf(Array);
+              expect(errorFile.length).toEqual(0);
+              expect(fulFile).toBeInstanceOf(Array);
+              expect(fulFile.length).toEqual(1);
+              resolve();
+            },
+            request: {
+              exitDataFn,
+              uploadFn,
+              completeFn,
+            },
+          }
         };
 
-        const wrapper = mount(<Upload ref={ref} {...props} />);
+        const wrapper = mount(Upload, props);
 
-        await act(async () => {
-          await sleep(100);
-          wrapper.find('input').simulate('change', {
-            target: {
-              files: [
-                ChunkUpload.arraybuffer2file(
-                  new ArrayBuffer(FILE_SIZE),
-                  FILE_NAME,
-                  {
-                    type: FILE_TYPE,
-                  },
-                ),
-              ],
-            },
-          });
-
-          await sleep(1000);
+        await sleep(100);
+        wrapper.vm.onInputFileChange({
+          target: {
+            files: [
+              ChunkUpload.arraybuffer2file(
+                new ArrayBuffer(FILE_SIZE),
+                FILE_NAME,
+                {
+                  type: FILE_TYPE,
+                },
+              ),
+            ],
+          },
         });
+
+        await sleep(1000);
+
       });
     });
   });

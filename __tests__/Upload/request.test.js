@@ -1,4 +1,5 @@
 import { Upload as ChunkUpload } from 'chunk-file-upload';
+import { mount } from '@vue/test-utils'
 import Upload from '@/Upload';
 import {
   exitDataFn,
@@ -35,7 +36,7 @@ const customRequest = (callback) => (params) => {
   };
 };
 
-describe.skip(`request about`, () => {
+describe(`request about`, () => {
   it(`set actionUrl success`, async () => {
     let doneNote = {
       completeFn: false,
@@ -66,7 +67,7 @@ describe.skip(`request about`, () => {
         withCredentials: false,
       };
 
-      Upload.install(
+      Upload.plugins.install(
         'request',
         customRequest({
           params: (params) => {
@@ -104,84 +105,80 @@ describe.skip(`request about`, () => {
         }),
       );
 
-      const ref = React.createRef();
-
       const props = {
-        viewType: 'list',
-        immediately: false,
-        ...customParams,
+        propsData: {
+          viewType: 'list',
+          immediately: false,
+          ...customParams,
+        }
       };
 
-      const wrapper = mount(<Upload ref={ref} {...props} />);
+      const wrapper = mount(Upload, props);
 
-      await act(async () => {
-        wrapper.find('input').simulate('change', {
-          target: {
-            files: [
-              ChunkUpload.arraybuffer2file(
-                new ArrayBuffer(FILE_SIZE),
-                FILE_NAME,
-                {
-                  type: FILE_TYPE,
-                },
-              ),
-            ],
-          },
-        });
-
-        await sleep(1000);
-
-        wrapper.update();
-
-        uploadTask(wrapper);
-
-        const files = ref.current.getFiles();
-        expect(files.length).toEqual(1);
+      
+      wrapper.vm.onInputFileChange({
+        target: {
+          files: [
+            ChunkUpload.arraybuffer2file(
+              new ArrayBuffer(FILE_SIZE),
+              FILE_NAME,
+              {
+                type: FILE_TYPE,
+              },
+            ),
+          ],
+        },
       });
+
+      await sleep(1000);
+
+      uploadTask(wrapper);
+
+      const files = wrapper.vm.stateFiles
+      expect(files.length).toEqual(1);
+
     });
 
-    Upload.uninstall('request');
+    Upload.plugins.uninstall('request');
   });
 
   it(`set actionUrl and not the customRequest`, async () => {
     await new Promise(async (resolve, reject) => {
-      const ref = React.createRef();
 
       const props = {
-        viewType: 'list',
-        immediately: false,
-        onError: (error) => {
-          expect(error).toBeDefined();
-          resolve();
-        },
+        propsData: {
+          viewType: 'list',
+          immediately: false,
+          "on-error": (error) => {
+            expect(error).toBeDefined();
+            resolve();
+          },
+        }
       };
 
-      const wrapper = mount(<Upload ref={ref} {...props} />);
+      const wrapper = mount(Upload, props);
 
-      await act(async () => {
-        wrapper.find('input').simulate('change', {
-          target: {
-            files: [
-              ChunkUpload.arraybuffer2file(
-                new ArrayBuffer(FILE_SIZE),
-                FILE_NAME,
-                {
-                  type: FILE_TYPE,
-                },
-              ),
-            ],
-          },
-        });
-
-        await sleep(1000);
-
-        wrapper.update();
-
-        uploadTask(wrapper);
-
-        const files = ref.current.getFiles();
-        expect(files.length).toEqual(1);
+      wrapper.vm.onInputFileChange({
+        target: {
+          files: [
+            ChunkUpload.arraybuffer2file(
+              new ArrayBuffer(FILE_SIZE),
+              FILE_NAME,
+              {
+                type: FILE_TYPE,
+              },
+            ),
+          ],
+        },
       });
+
+      await sleep(1000);
+
+      uploadTask(wrapper);
+
+      const files = wrapper.vm.stateFiles
+      expect(files.length).toEqual(1);
+
     });
   });
 
@@ -215,7 +212,7 @@ describe.skip(`request about`, () => {
         withCredentials: false,
       };
 
-      Upload.install(
+      Upload.plugins.install(
         'request',
         customRequest({
           params: (params) => {
@@ -254,43 +251,40 @@ describe.skip(`request about`, () => {
         }),
       );
 
-      const ref = React.createRef();
-
       const props = {
-        viewType: 'list',
-        immediately: false,
-        ...customParams,
+        propsData: {
+          viewType: 'list',
+          immediately: false,
+          ...customParams,
+        }
       };
 
-      const wrapper = mount(<Upload ref={ref} {...props} />);
+      const wrapper = mount(Upload, props);
 
-      await act(async () => {
-        wrapper.find('input').simulate('change', {
-          target: {
-            files: [
-              ChunkUpload.arraybuffer2file(
-                new ArrayBuffer(FILE_SIZE),
-                FILE_NAME,
-                {
-                  type: FILE_TYPE,
-                },
-              ),
-            ],
-          },
-        });
-
-        await sleep(1000);
-
-        wrapper.update();
-
-        uploadTask(wrapper);
-
-        const files = ref.current.getFiles();
-        expect(files.length).toEqual(1);
+      wrapper.vm.onInputFileChange({
+        target: {
+          files: [
+            ChunkUpload.arraybuffer2file(
+              new ArrayBuffer(FILE_SIZE),
+              FILE_NAME,
+              {
+                type: FILE_TYPE,
+              },
+            ),
+          ],
+        },
       });
+
+      await sleep(1000);
+
+      uploadTask(wrapper);
+
+      const files = wrapper.vm.stateFiles
+      expect(files.length).toEqual(1);
+
     });
 
-    Upload.uninstall('request');
+    Upload.plugins.uninstall('request');
   });
 
   it(`set actionUrl and custom request`, async () => {
@@ -323,7 +317,7 @@ describe.skip(`request about`, () => {
         withCredentials: false,
       };
 
-      Upload.install(
+      Upload.plugins.install(
         'request',
         customRequest({
           params: () => {
@@ -347,54 +341,51 @@ describe.skip(`request about`, () => {
         }),
       );
 
-      const ref = React.createRef();
-
       const props = {
-        viewType: 'list',
-        immediately: false,
-        ...customParams,
-        request: {
-          exitDataFn,
-          completeFn,
-          uploadFn,
-          callback: (error) => {
-            expect(Object.values(doneNote).every((item) => !item)).toBeTruthy();
-            if (error) {
-              reject(error);
-            }
-            resolve();
+        propsData: {
+          viewType: 'list',
+          immediately: false,
+          ...customParams,
+          request: {
+            exitDataFn,
+            completeFn,
+            uploadFn,
+            callback: (error) => {
+              expect(Object.values(doneNote).every((item) => !item)).toBeTruthy();
+              if (error) {
+                reject(error);
+              }
+              resolve();
+            },
           },
-        },
+        }
       };
 
-      const wrapper = mount(<Upload ref={ref} {...props} />);
+      const wrapper = mount(Upload, props);
 
-      await act(async () => {
-        wrapper.find('input').simulate('change', {
-          target: {
-            files: [
-              ChunkUpload.arraybuffer2file(
-                new ArrayBuffer(FILE_SIZE),
-                FILE_NAME,
-                {
-                  type: FILE_TYPE,
-                },
-              ),
-            ],
-          },
-        });
-
-        await sleep(1000);
-
-        wrapper.update();
-
-        uploadTask(wrapper);
-
-        const files = ref.current.getFiles();
-        expect(files.length).toEqual(1);
+      wrapper.vm.onInputFileChange({
+        target: {
+          files: [
+            ChunkUpload.arraybuffer2file(
+              new ArrayBuffer(FILE_SIZE),
+              FILE_NAME,
+              {
+                type: FILE_TYPE,
+              },
+            ),
+          ],
+        },
       });
+
+      await sleep(1000);
+
+      uploadTask(wrapper);
+
+      const files = wrapper.vm.stateFiles
+      expect(files.length).toEqual(1);
+
     });
 
-    Upload.uninstall('request');
+    Upload.plugins.uninstall('request');
   });
 });

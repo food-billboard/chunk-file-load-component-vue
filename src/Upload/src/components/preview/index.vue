@@ -72,6 +72,10 @@ export default {
 }
 </script>
 <style>
+.chunk-upload-preview-modal {
+  max-width: 500px;
+  text-align: center;
+}
 .chunk-upload-preview-modal .el-dialog__header,
 .chunk-upload-preview-modal .el-dialog__body {
   padding: 0;

@@ -16,7 +16,7 @@ import {
   DEFAULT_REQUEST
 } from './utils';
 
-describe.skip(`error test`, () => {
+describe(`error test`, () => {
 
   it(`remove file when the file is uploading`, async () => {
     await new Promise(async (resolve, reject) => {
