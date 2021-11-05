@@ -38,6 +38,26 @@ module.exports = {
     output: {
       filename: "[name].js",
       libraryTarget: "commonjs2"
+    },
+    module: {
+      rules: [
+        {
+          test: /\.js$/,
+          use: {
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                [
+                  '@vue/babel-preset-jsx',
+                  {
+                    injectH: false
+                  }
+                ]
+              ]
+            }
+          }
+        }
+      ]
     }
   },
   chainWebpack: config => {
