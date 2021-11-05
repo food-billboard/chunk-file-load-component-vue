@@ -1,15 +1,15 @@
 <script>
-  import { noop } from 'lodash'
+  import { noop, omit } from 'lodash'
   import Card from './card'
   import List from './list'
-  import { isUploaded, withTry, sleep } from '../../utils'
+  import { isUploaded, withTry } from '../../utils'
   export default {
     props: {
       className: String,
       viewStyle: Object,
       onCancel: Function,
       viewType: String,
-      showUploadList: Object | Boolean,
+      showUploadList: [Object, Boolean],
       iconRender: Function,
       itemRender: Function,
       onRemove: Function,
@@ -84,7 +84,7 @@
             );
           }
         }
-        this.onCancel?.(task);
+        this.onCancel && this.onCancel(task);
 
         const prevValue = this.getValue
         const newValue = this.unCancelValue(task, prevValue)
@@ -97,7 +97,13 @@
           const fileTask = task.task;
           let result = [];
           const { error } = task;
-          if (task.task?.tool.file.isStop(task.task)) {
+          let isStop = false
+          try {
+            isStop = fileTask.tool.file.isStop(fileTask)
+          }catch(err) {
+            isStop = false 
+          }
+          if (isStop) {
             result = this.instance.start(fileTask.symbol);
           } else if (!error) {
             result = this.instance.deal(fileTask.symbol);
@@ -114,7 +120,8 @@
                   return newTask || item.task;
                 },
                 getStatus() {
-                  return (newTask || item.task)?.status;
+                  const task = newTask || item.task
+                  return task && task.status;
                 },
                 error: null,
               };
@@ -130,13 +137,13 @@
       },
     },
     render() {
+
+      const nextProps = omit(this.$props, ["onRemove", "previewFile", "onCancel"])
+
       const {
         viewType,
-        onRemove,
-        previewFile,
-        onCancel,
-        ...nextProps
-      } = this.$props
+      } = nextProps
+
       const props = {
         props: {
           ...nextProps,
@@ -150,6 +157,8 @@
 
       if(viewType == "list") return <list {...props}>{this.$slots.default}</list>
       if(viewType == "card") return <card {...props}>{this.$slots.default}</card>
+
+      return (<span></span>)
       
     }
 

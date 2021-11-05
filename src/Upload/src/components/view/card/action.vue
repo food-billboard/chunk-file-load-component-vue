@@ -1,6 +1,7 @@
 <script>
 import { Button } from 'element-ui'
 import classnames from 'classnames'
+import { get } from 'lodash'
 import { actionIconPerformance } from '../utils'
 
 export default {
@@ -18,7 +19,7 @@ export default {
     isComplete: Boolean,
     value: Object,
     previewFile: Function,
-    showUploadList: Boolean | Object,
+    showUploadList: [Boolean, Object],
     viewType: String 
   },
   data() {
@@ -50,11 +51,11 @@ export default {
       );
     },
     handlePreview() {
-      return this.onPreview?.(this.value);
+      return this.onPreview && this.onPreview(this.value);
     },
     async handleCancel() {
       this.cancelLoading = true 
-      const result = await this.onCancel?.(this.value);
+      this.onCancel && await this.onCancel(this.value);
       this.cancelLoading = false 
     }
   },
@@ -89,7 +90,7 @@ export default {
               icon={previewIconNode || "bi bi-eye"}
               loading={this.cancelLoading}
               type="text"
-              disabled={!this.value.local?.value?.preview && !this.previewFile}
+              disabled={!get(this.value, "local.value.preview") && !this.previewFile}
             />
           )
         )

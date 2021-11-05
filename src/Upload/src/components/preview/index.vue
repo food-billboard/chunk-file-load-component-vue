@@ -23,7 +23,7 @@ export default {
     async open({ value }) {
       const [, result] = this.onPreviewFile
           ? await withTry(this.onPreviewFile)(this.value)
-          : [, true];
+          : [undefined, true];
       if (result) {
         this.value = value 
         this.visible = true 
@@ -33,7 +33,7 @@ export default {
     async fetchPreviewFile(value, previewFile, viewType) {
       let result = false;
       if (previewFile) {
-        result = await previewFile?.(value, viewType)
+        result = previewFile && await previewFile(value, viewType)
       }
       this.customPreview = result 
     },

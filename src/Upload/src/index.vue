@@ -1,7 +1,7 @@
 <script>
   import classnames from 'classnames'
   import { nanoid } from 'nanoid'
-  import { get, merge } from 'lodash'
+  import { merge } from 'lodash'
   import Drag from './components/drag'
   import Container from './components/container'
   import ViewList from './components/view'
@@ -165,8 +165,13 @@
           let errorFiles;
           let dealError = false;
           const result = this.formatFiles.map((item) => {
-            const isStop = get(item.task, "tool.file.isStop")
-            if (item.name !== value || (isStop && isStop.call(item.task.tool.file))) {
+            let isStop = false 
+            try {
+              isStop = item.task.tool.file.isStop()
+            }catch(err) {
+              isStop = false  
+            }
+            if (item.name !== value || isStop) {
               return item;
             }
             dealError = true;

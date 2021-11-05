@@ -9,7 +9,7 @@
 </template>
 <script>
   import { noop } from 'lodash'
-  import { ERRORS_MAP } from '../../utils'
+  import { ERRORS_MAP, isNill } from '../../utils'
   export default {
     name: 'Drop',
     props: {
@@ -77,7 +77,7 @@
             if (/\/\*$/.test(acceptedType)) {
               return baseType === acceptedType.replace(/\/\*$/, '');
             }
-            if (/^[^\/]+\/[^\/]+$/.test(acceptedType)) {
+            if (/^[^/]+\/[^/]+$/.test(acceptedType)) {
               return type === acceptedType;
             }
             return false;
@@ -117,9 +117,9 @@
       },
       customValidator(files) {
         let realFiles = [].slice.call(files)
-        let currentFilesLength = this.getValue
-        currentFilesLength = currentFilesLength ? currentFilesLength.length || 0 : 0
-        const maxFiles = this.maxFiles ?? (this.multiple ? undefined : 1)
+        // let currentFilesLength = this.getValue
+        // currentFilesLength = currentFilesLength ? currentFilesLength.length || 0 : 0
+        const maxFiles = isNill(this.maxFiles) ? (this.multiple ? undefined : 1) : this.maxFiles
 
         let result = {
           resolve: [...realFiles],
@@ -173,7 +173,7 @@
           }, [])
         })
 
-        if(!!result.reject.length) {
+        if(result.reject.length) {
           this.isDragReject = true
         }else {
           this.isDragAccept = true 

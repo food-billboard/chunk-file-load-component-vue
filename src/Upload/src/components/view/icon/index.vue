@@ -1,5 +1,4 @@
 <script>
-import {  } from 'element-ui'
 import classnames from 'classnames'
 import { merge } from 'lodash'
 import DefaultIconMap, { DEFAULT_SET_ICON } from './default'
@@ -17,8 +16,14 @@ export default {
   },
   computed: {
     fileType() {
-      const type = this.file.task?.tool.file.getFileType(this.file.task);
-      return listFormatType(type);
+      let type = ""
+      try {
+        type = this.file.task.tool.file.getFileType(this.file.task);
+      }catch(err) {
+        type = ""
+      }
+      return listFormatType(type)
+      
     },
     IconMap() {
       switch (this.viewType) {

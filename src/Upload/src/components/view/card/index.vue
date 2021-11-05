@@ -10,7 +10,7 @@
       onPreview: Function,
       viewType: String,
       viewStyle: Object,
-      showUploadList: Boolean | Object,
+      showUploadList: [Boolean, Object],
       iconRender: Function,
       itemRender: Function,
       previewFile: Function,

@@ -1,5 +1,5 @@
 <script>
-import { pick, merge } from 'lodash'
+import { pick, merge, omit } from 'lodash'
 import Card from './card'
 import List from './list'
 
@@ -41,7 +41,7 @@ export default {
   },
   render() {
 
-    const { viewType, currentFiles, limit, inputProps, ...nextProps } = this.$props
+    const nextProps = omit(this.$props, ["viewType", "currentFiles", "limit", "inputProps"])
 
     const inputContainer = (
       <input {...this.inputProps} ref={"chunk-file-load-ref"} />

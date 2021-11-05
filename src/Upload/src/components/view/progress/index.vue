@@ -3,6 +3,7 @@
   import { Progress } from 'element-ui'
   import { omit } from 'lodash'
   import { getProcessStatusLocale } from './utils'
+  import { isNill } from '../../../utils'
 
   export default {
     components: {
@@ -41,7 +42,9 @@
         return parseFloat(this.percent.toFixed(this.fixed));
       },
       status() {
-        return getProcessStatusLocale(this.file.getStatus() ?? 1, this.locale)
+        const status = this.file.getStatus()
+        const realStatsu = isNill(status) ? 1 : status 
+        return getProcessStatusLocale(realStatsu, this.locale)
       }
     },
     watch: {
@@ -61,7 +64,7 @@
       const progressProps = {
         props: {
           percentage: this.realValue,
-          status: !!error ? 'exception' : undefined,
+          status: error ? 'exception' : undefined,
           ...omit(this.$props, [
             "file",
             "className",
@@ -89,7 +92,7 @@
           ></el-progress>
           <span
             class="chunk-upload-list-progress-status"
-            title={origin?.step}
+            title={(origin && origin.step) || ""}
           >
             {this.status}
           </span>

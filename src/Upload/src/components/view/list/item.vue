@@ -1,6 +1,7 @@
 <script>
   import { Button } from 'element-ui'
   import classnames from 'classnames'
+  import { get } from 'lodash'
   import Icon from '../icon'
   import Progress from '../progress'
   import ProgressWrapper from '../progress/wrapper'
@@ -13,8 +14,8 @@
       onUpload: Function,
       onStop: Function,
       onPreview: Function,
-      itemRender: Function | Boolean,
-      showUploadList: Object | Boolean,
+      itemRender: [Function, Boolean],
+      showUploadList: [Object, Boolean],
       iconRender: Function,
       viewType: String,
       previewFile: Object,
@@ -41,17 +42,11 @@
     methods: {
       async handleCancel() {
         this.cancelLoading = true 
-        const result = await this.onCancel?.(this.value);
+        this.onCancel && await this.onCancel(this.value);
         this.cancelLoading = false 
       },
-      handleStop() {
-        this.onStop(this.value)
-      },
       handlePreview() {
-        return this.onPreview?.(this.value);
-      },
-      async handleUpload() {
-        await this.onUpload(this.value);
+        return this.onPreview && this.onPreview(this.value);
       },
       uploadButtonAction(uploadIcon, stopIcon) {
         if (this.isComplete) return null;
@@ -83,12 +78,17 @@
       },
       onProgressChange() {
         const { task, local } = this.value
-        if(!task && local?.type === "url") {
+        const type = local && local.type 
+        if(!task && type === "url") {
           this.isDealing = false 
           this.isComplete = true 
         }else {
-          this.isDealing = !!task?.tool.file.isTaskDealing(task);
-          this.isComplete = !!task?.tool.file.isTaskComplete(task);
+          try {
+            this.isDealing = !!task.tool.file.isTaskDealing(task);
+            this.isComplete = !!task.tool.file.isTaskComplete(task);
+          }catch(err) {
+            return 
+          }
         }
       },
       onStatusChange(_, progressInfo) {
@@ -98,7 +98,7 @@
     created() {
       const { task } = this.value 
       this.progress = new ProgressWrapper({
-        name: task?.symbol,
+        name: task && task.symbol,
         getValue: this.getValue,
         emitter: this.emitter,
         instance: this.instance,
@@ -138,7 +138,7 @@
                 loading={this.cancelLoading}
                 type="text"
                 size="medium"
-                disabled={!this.value.local?.value?.preview && !this.previewFile}
+                disabled={!get(this.value, "local.value.preview") && !this.previewFile}
               />
             )
           )
@@ -174,7 +174,7 @@
             <cus-progress
               {...progressProps}
             ></cus-progress>
-            <span>{local?.value?.filename || local?.value?.fileId || id}</span>
+            <span>{get(local, "value.filename") || get(local, "value.fileId") || id}</span>
           </div>
           {this.actionRender}
         </li>
@@ -185,7 +185,7 @@
           complete,
           current,
           total,
-          status: task?.status,
+          status: task ? task.status : undefined,
         })
       }
 

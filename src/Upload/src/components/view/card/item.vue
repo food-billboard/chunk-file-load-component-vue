@@ -1,5 +1,6 @@
 <script>
   import classnames from 'classnames'
+  import { get } from 'lodash'
   import Icon from '../icon'
   import ActionModal from './action.vue'
   import Progress from '../progress'
@@ -17,8 +18,8 @@
       onUpload: Function,
       onStop: Function,
       onPreview: Function,
-      itemRender: Function | Boolean,
-      showUploadList: Object | Boolean,
+      itemRender: [Function, Boolean],
+      showUploadList: [Object, Boolean],
       iconRender: Function,
       viewType: String,
       previewFile: Object,
@@ -47,12 +48,17 @@
       },
       onProgressChange() {
         const { task, local } = this.value
-        if(!task && local?.type === "url") {
+        const type = local ? local.type : null 
+        if(!task && type === "url") {
           this.isDealing = false 
           this.isComplete = true 
         }else {
-          this.isDealing = !!task?.tool.file.isTaskDealing(task);
-          this.isComplete = !!task?.tool.file.isTaskComplete(task);
+          try {
+            this.isDealing = !!task.tool.file.isTaskDealing(task);
+            this.isComplete = !!task.tool.file.isTaskComplete(task);
+          }catch(err) {
+            return 
+          }
         }
       },
       onStatusChange(_, progressInfo) {
@@ -62,7 +68,7 @@
     created() {
       const { task } = this.value 
       this.progress = new ProgressWrapper({
-        name: task?.symbol,
+        name: task && task.symbol,
         getValue: this.getValue,
         emitter: this.emitter,
         instance: this.instance,
@@ -116,7 +122,7 @@
             {...progressProps}
           ></cus-progress>
           <div class="chunk-upload-card-item-info">
-            <span>{local?.value?.filename || local?.value?.fileId || id}</span>
+            <span>{get(local, "value.filename") || get(local, "value.fileId") || id}</span>
           </div>
           <action-modal
             {
@@ -131,7 +137,7 @@
           complete,
           current,
           total,
-          status: task?.status,
+          status: task && task.status,
         })
       }
 

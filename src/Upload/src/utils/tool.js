@@ -80,3 +80,7 @@ export const className = (prefix, ...args) => {
 };
 
 export const sleep = (times=500) => new Promise(resolve => setTimeout(resolve, times))
+
+export function isNill(value) {
+  return value === undefined || value === null 
+}

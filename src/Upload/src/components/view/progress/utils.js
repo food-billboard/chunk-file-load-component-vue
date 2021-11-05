@@ -23,8 +23,9 @@ const DEFAULT_STATUS_LOCALE = {
 
 export function getProcessStatusLocale(step, locale) {
   const status = STATUS_MAP[step];
-  return (
-    (locale?.progress)?.[status] ||
-    (DEFAULT_STATUS_LOCALE)[status]
-  );
-};
+  try {
+    return (locale.progress)[status]
+  }catch(err) {
+    return (DEFAULT_STATUS_LOCALE)[status]
+  } 
+}
