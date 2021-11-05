@@ -5,7 +5,7 @@ const components = [
   Upload
 ]
 
-const install = function(Vue, opts = {}) {
+const install = function(Vue) {
 
   components.forEach(component => {
     Vue.component(component.name, component);

@@ -7,7 +7,7 @@ function lifecycleFormat(lifecycle) {
     const action = lifecycle[cycle];
     acc[cycle] = function (params, response) {
       emitter.emit(params.name, params, response, this);
-      return action?.(params);
+      return action && action(params);
     };
     return acc;
   }, {});

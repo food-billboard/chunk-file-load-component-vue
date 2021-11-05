@@ -8,7 +8,6 @@ deploy_versions/
 node_modules/
 .DS_Store
 jest.config.js
-tsconfig.json
 /.awcache
 /doc
 yarn-error.log

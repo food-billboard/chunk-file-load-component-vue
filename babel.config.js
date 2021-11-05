@@ -2,6 +2,12 @@ module.exports = {
   presets: [
     "@vue/cli-plugin-babel/preset",
     ["@babel/preset-env"],
+    [
+      "@vue/babel-preset-jsx",
+      {
+        injectH: false,
+      },
+    ]
   ],
   plugins: [
     ["@babel/plugin-proposal-private-property-in-object", { "loose": true }],

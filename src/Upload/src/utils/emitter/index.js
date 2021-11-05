@@ -1,5 +1,8 @@
 class Emitter {
-  events = new Map();
+
+  constructor() {
+    this.events = new Map()
+  }
 
   on(name, action) {
     if (typeof name === 'symbol') {
@@ -12,8 +15,8 @@ class Emitter {
 
   emit(name, ...args) {
     const action = this.events.get(name);
-    action?.forEach((action) => {
-      action?.(name, ...args);
+    if(action) action.forEach((action) => {
+      action && action(name, ...args);
     });
   }
 

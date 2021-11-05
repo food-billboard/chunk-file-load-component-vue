@@ -29,12 +29,12 @@
     },
     props: {
       value: {
-        type: String | Array | Object,
+        type: [String, Array, Object],
         required: false,
         validator: PropsValidator.value 
       },
       defaultValue: {
-        type: String | Array | Object,
+        type: [String, Array, Object],
         required: false,
         validator: PropsValidator.defaultValue 
       },
@@ -59,7 +59,7 @@
         required: false,
       },
       containerStyle: Object,
-      containerClass: String | Object,
+      containerClass: [String, Object],
       viewStyle: {
         type: Object,
         default() {
@@ -98,9 +98,9 @@
       containerRender: Function,
       immediately: Boolean,
       limit: Number,
-      actionUrl: String | Array,
+      actionUrl: [String, Array],
       method: Array,
-      headers: Object | Array,
+      headers: [Object, Array],
       withCredentials: Boolean,
       locale: {
         type: Object,
@@ -135,14 +135,14 @@
         if(!this.value) {
           this.stateFiles = value
         } 
-        this.onChange?.(value)
+        this.onChange && this.onChange(value)
       },
       selectFiles() {
         this.$refs["chunk-file-load-ref"].selectFiles()
       },
       onDrop(resolveFiles, rejectFiles) {
         const { wrapperFiles, errorFiles } = this.addTask(resolveFiles);
-        this.onValidator?.([
+        this.onValidator && this.onValidator([
             ...errorFiles.map((item) => {
               return {
                 file: item,
@@ -161,12 +161,12 @@
         this.setFiles([...this.files, ...wrapperFiles]);
       },
       callbackWrapper(callback, error, value) {
-        if (!!error) {
+        if (error) {
           let errorFiles;
           let dealError = false;
           const result = this.formatFiles.map((item) => {
             const isStop = get(item.task, "tool.file.isStop")
-            if (item.name !== value || (isStop?.call(item.task.tool.file))) {
+            if (item.name !== value || (isStop && isStop.call(item.task.tool.file))) {
               return item;
             }
             dealError = true;
@@ -176,12 +176,12 @@
             return errorFiles;
           })
           this.setFiles(result)
-          dealError && this.onError?.(error, errorFiles);
+          dealError && this.onError  && this.onError(error, errorFiles);
         }
 
         // release emitter 
         if(!error) releaseEmitter(value)
-        callback?.(error, value);
+        callback && callback(error, value);
       },
       onInternalError(request) {
         const { callback, ...nextRequest } = request;
@@ -267,8 +267,10 @@
         const realFiles = Array.isArray(files) ? files : [files];
         realFiles.forEach((file) => {
           try {
-            URL.revokeObjectURL(file.local?.value?.preview)
-          } catch (err) {}
+            URL.revokeObjectURL(file.local.value.preview)
+          } catch (err) {
+            return 
+          }
         });
       },
       onPreview(value) {

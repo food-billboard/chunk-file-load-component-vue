@@ -1,16 +1,17 @@
-import { merge } from 'lodash';
+import { merge, get } from 'lodash';
 import { nanoid } from 'nanoid';
 import { DEFAULT_COMPLETE_FILE, DEFAULT_UN_COMPLETE_FILE } from './constants'
 
 export const mergeDefaultTask = (task) => {
-  if (task.local?.type === 'url') {
+  const type = get(task, "local.type")
+  if (type === 'url') {
     return merge({}, DEFAULT_COMPLETE_FILE, task, {
       id: nanoid(),
     });
   }
 
   return {
-    getTask: () => task.task?.status,
+    getTask: () => get(task, ".task.status"),
     ...DEFAULT_UN_COMPLETE_FILE,
     id: nanoid(),
     get task() {
@@ -49,7 +50,7 @@ export const propsValueFormat = (value) => {
   });
 };
 
-export const createPreview = (file, task) => {
+export const createPreview = (file) => {
   const type = file.type;
   if (type && type.startsWith('image/')) return URL.createObjectURL(file);
   return '';
@@ -57,7 +58,7 @@ export const createPreview = (file, task) => {
 
 export const isUploaded = (task) => {
   return (
-    task.local?.type === 'url' ||
+    get(task, "local.type") === 'url' ||
     !task.task ||
     task.task.tool.file.isTaskComplete(task.task)
   );
