@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const lodashModuleReplace = require('lodash-webpack-plugin')
 
 function resolve(dir) {
   return path.resolve(__dirname, dir);
@@ -39,38 +40,33 @@ module.exports = {
       filename: "[name].js",
       libraryTarget: "commonjs2"
     },
-    module: {
-      rules: [
-        {
-          test: /\.js$/,
-          use: {
-            loader: 'babel-loader',
-            options: {
-              presets: [
-                [
-                  '@vue/babel-preset-jsx',
-                  {
-                    injectH: false
-                  }
-                ]
-              ]
-            }
-          }
-        }
-      ]
+    externals: {
+      lodash : {
+        commonjs: 'lodash',
+        amd: 'lodash',
+        root: '_' // 指向全局变量
+      },
+      vue: {
+        root: "Vue",   //通过 script 标签引入，此时全局变量中可以访问的是 Vue
+        commonjs: "vue",  //可以将vue作为一个 CommonJS 模块访问
+        commonjs2: "vue",  //和上面的类似，但导出的是 module.exports.default
+        amd: "vue"   //类似于 commonjs，但使用 AMD 模块系统
+      }
     }
   },
   chainWebpack: config => {
-    config.module
-      .rule("js")
-      .include.add("/src")
-      .end()
-      .use("babel")
-      .loader("babel-loader")
-      .tap(options => {
-        return options;
-      });
-    config.optimization.delete("splitChunks");
+    config.plugin("webpack-bundle-analyzer").use(require("webpack-bundle-analyzer").BundleAnalyzerPlugin)
+
+    config.optimization.minimizer('terser').tap((args) => {
+      args[0].terserOptions.compress.drop_console = true
+      return args
+    })
+
+    // lodash 
+    config.plugin('loadshReplace')
+      .use(new lodashModuleReplace())
+
+    // config.optimization.delete("splitChunks");
     config.plugins.delete("copy");
     config.plugins.delete("html");
     config.plugins.delete("preload");

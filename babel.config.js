@@ -1,30 +1,26 @@
 module.exports = {
   presets: [
     "@vue/cli-plugin-babel/preset",
-    ["@babel/preset-env"]
+    [
+      '@vue/babel-preset-jsx',
+      {
+        injectH: false
+      }
+    ],
+    ["@babel/preset-env"],
   ],
   plugins: [
     ["@babel/plugin-proposal-private-property-in-object", { "loose": true }],
     ["@babel/plugin-proposal-class-properties", { "loose": true }],
     ["@babel/plugin-proposal-private-methods", { "loose": true }],
     ["@babel/plugin-transform-runtime"],
+    "lodash",
     [
-      'babel-plugin-import',
-      {
-        libraryName: 'lodash',
-        libraryDirectory: '',
-        camel2DashComponentName: false, // default: true
-      },
-      'lodash',
-    ],
-    [
-      'babel-plugin-import',
+      'component',
       {
         libraryName: 'element-ui',
-        libraryDirectory: 'lib',
         styleLibraryName: "theme-chalk"
-      },
-      'element-ui',
+      }
     ],
   ]
 };
