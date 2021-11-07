@@ -7,7 +7,14 @@ module.exports = {
         injectH: false
       }
     ],
-    ["@babel/preset-env"],
+    ["@babel/preset-env", {
+      "modules": false,
+      "useBuiltIns": "usage",
+      "corejs": "2.6.10",
+      "targets": {
+        "ie": 10
+      }
+    }],
   ],
   plugins: [
     ["@babel/plugin-proposal-private-property-in-object", { "loose": true }],
@@ -22,5 +29,8 @@ module.exports = {
         styleLibraryName: "theme-chalk"
       }
     ],
+  ],
+  ignore: [
+    "node_modules/**"
   ]
 };
