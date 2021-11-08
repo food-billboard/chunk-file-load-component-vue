@@ -10,7 +10,7 @@ module.exports = {
     ["@babel/preset-env", {
       "modules": false,
       "useBuiltIns": "usage",
-      "corejs": "2.6.10",
+      "corejs": "3.6.5",
       "targets": {
         "ie": 10
       }
@@ -29,8 +29,5 @@ module.exports = {
         styleLibraryName: "theme-chalk"
       }
     ],
-  ],
-  ignore: [
-    "node_modules/**"
   ]
 };

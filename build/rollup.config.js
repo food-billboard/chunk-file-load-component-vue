@@ -16,27 +16,13 @@ export {
 
 export default {
   input: 'src/index.js',
-  output: {
-    name,
-    file: file('esm'),
-    format: 'es'
-  },
   plugins: [
+    vue({compileTemplate: true, css: true}),
     nodeResolve(),
-    vue(),
-    commonjs({
-      include: [
-        "node_modules/**",
-        "node_modules/**/*"
-      ]
-    }),
     babel({
-      presets: [
-        "@vue/babel-preset-jsx"
-      ],
-      exclude: 'node_modules/**',
-      babelHelpers: "runtime"
+      babelHelpers: "runtime",
     }),
+    commonjs(),
     postcss({
       extensions: [".css"],
       extract: true,
@@ -45,6 +31,4 @@ export default {
     terser()
   ],
   external: ['vue', 'lodash', 'element-ui']
-}
-
-    
+}  
