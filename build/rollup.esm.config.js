@@ -4,7 +4,11 @@ export default {
   output: {
     name,
     file: file('esm'),
-    format: 'es'
+    format: 'esm',
+    globals: {
+      vue: "Vue",
+      lodash: "_"
+    }
   }
 }
 

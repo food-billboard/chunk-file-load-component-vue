@@ -8,12 +8,12 @@ module.exports = {
       }
     ],
     ["@babel/preset-env", {
-      "modules": false,
-      "useBuiltIns": "usage",
-      "corejs": "3.6.5",
-      "targets": {
-        "ie": 10
-      }
+      // "modules": false,
+      // "useBuiltIns": "usage",
+      // "corejs": "3.6.5",
+      // "targets": {
+      //   "ie": 10
+      // }
     }],
   ],
   plugins: [

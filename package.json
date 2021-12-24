@@ -38,11 +38,11 @@
     "bootstrap-icons": "^1.6.1",
     "chunk-file-upload": "^1.0.9",
     "classnames": "^2.3.1",
-    "element-ui": "^2.15.6",
     "nanoid": "^3.1.28"
   },
   "peerDependencies": {
-    "vue": "^2.5.17"
+    "vue": "^2.5.17",
+    "element-ui": "^2.15.6"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.16.0",

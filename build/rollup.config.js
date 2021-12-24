@@ -17,18 +17,27 @@ export {
 export default {
   input: 'src/index.js',
   plugins: [
-    vue({compileTemplate: true, css: true}),
     nodeResolve(),
     babel({
       babelHelpers: "runtime",
     }),
-    commonjs(),
-    postcss({
-      extensions: [".css"],
-      extract: true,
-      plugins: [postcssImport()]
+    vue(),
+    commonjs({
+      include: [
+        "node_modules/**",
+        "node_modules/**/*"
+      ],
+      exclude: [
+        "src/**",
+        "src/**/*"
+      ]
     }),
-    terser()
+    // postcss({
+    //   extensions: [".css"],
+    //   extract: true,
+    //   plugins: [postcssImport()]
+    // }),
+    // terser()
   ],
   external: ['vue', 'lodash', 'element-ui']
 }  
